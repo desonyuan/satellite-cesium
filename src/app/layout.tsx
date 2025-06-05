@@ -1,5 +1,6 @@
+import "../../styles/globals.css"
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import "@/styles/globals.css";
+// import "@/styles/cesium.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
@@ -32,10 +33,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="zh-cn">
+    <html suppressHydrationWarning lang="zh-CN">
       <head />
       <body className={clsx("bg-background")}>
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
+        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <CesiumContext>{children}</CesiumContext>
         </Providers>
       </body>

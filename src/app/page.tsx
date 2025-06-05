@@ -2,11 +2,20 @@
 
 import { FC } from "react";
 
-import { useCesium } from "../context/cesium.context";
-const Home: FC = () => {
-  const { viewer } = useCesium();
+import RightBox from "@/components/main/right/RightBox";
+import ScenFormModal from "@/components/main/ScenFormModal";
+import TitleBar from "@/components/main/TitleBar";
+import LeftBox from "@/components/main/left/LeftBox";
 
-  return null;
+const Home: FC = () => {
+  return (
+    <>
+      <TitleBar />
+      <LeftBox />
+      <RightBox />
+      <ScenFormModal />
+    </>
+  );
 };
 
 export default Home;

@@ -97,14 +97,14 @@ export default defineConfig([globalIgnores([
         "no-unused-vars": "off",
         "unused-imports/no-unused-vars": "off",
         "unused-imports/no-unused-imports": "warn",
-
+        "jsx-a11y/label-has-associated-control": "off",
         "@typescript-eslint/no-unused-vars": ["warn", {
             args: "after-used",
             ignoreRestSiblings: false,
             argsIgnorePattern: "^_.*?$",
         }],
         "prettier/prettier": [
-            "error",
+            "off",
             {
                 "endOfLine": "auto"
             },
