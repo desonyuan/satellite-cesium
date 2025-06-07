@@ -1,9 +1,10 @@
 import { Select, SelectItem } from "@heroui/select";
 import { FC, PropsWithChildren } from "react";
 
-import { findSceneByName, setCurDataSource, useAppStore } from "@/src/store/app.store";
+import { findSceneByName, setCurDataSource, setCurScene, useAppStore } from "@/src/store/app.store";
 import { useCesium } from "@/src/context/cesium.context";
 import { loadCzml } from "@/src/tool/czml";
+import { LoadSceneConfig } from "@/src/tool/scene";
 
 interface IProps {}
 
@@ -14,12 +15,14 @@ const SceneSelect: FC<PropsWithChildren<IProps>> = () => {
   const onSelectionChange = (slection: any) => {
     const keys = slection as Set<string>;
 
+    console.log("xuanle", Selection);
+
     let sceneName = "";
 
     keys.forEach((name: string) => {
       sceneName = name;
     });
-
+    debugger;
     if (sceneName) {
       const scene = findSceneByName(sceneName);
 
@@ -29,6 +32,8 @@ const SceneSelect: FC<PropsWithChildren<IProps>> = () => {
         loadCzml(scene.satelliteList[0]).then((ds) => {
           viewer.dataSources.add(ds);
           setCurDataSource(ds);
+          LoadSceneConfig(viewer, scene.setting);
+          setCurScene(sceneName);
         });
       }
     }

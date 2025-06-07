@@ -2,7 +2,8 @@
 import { Ion, Viewer } from "cesium";
 import { FC, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
 
-import { toggleEditFormModal } from "../store/app.store";
+import { genDefaultSceneConfig, toggleEditFormModal } from "../store/app.store";
+import { LoadSceneConfig } from "../tool/scene";
 
 import { CESIUM_TOKEN } from "@/config/cesium";
 
@@ -23,16 +24,20 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
       geocoder: false,
       navigationHelpButton: false,
       baseLayerPicker: false,
-      animation: false,
+
       timeline: true,
+      orderIndependentTranslucency: true,
       // vrButton: false,
       // homeButton: false,
       // infoBox: false,
       // imageryProvider:false,
       // terrainProvider:await CesiumTerrainProvider.fromUrl('/data/map')
+      contextOptions: {
+        webgl: { alpha: true },
+      },
     });
 
-    // (v.cesiumWidget.creditContainer as HTMLElement).style.display = "none";
+    (v.cesiumWidget.creditContainer as HTMLElement).style.display = "none"; /* 隐藏cesium logo */
     setViewer(v);
     // 添加按钮编辑按钮
     const toolBar = document.querySelector(".cesium-viewer-toolbar") as HTMLDivElement;
@@ -52,6 +57,8 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
       button.appendChild(img);
       toolBar.appendChild(button);
     }
+
+    LoadSceneConfig(v, genDefaultSceneConfig());
 
     return () => {
       v.destroy();

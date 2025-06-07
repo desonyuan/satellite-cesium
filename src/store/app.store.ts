@@ -14,8 +14,8 @@ export type SettingKey =
   | "time"
   | "rotate"
   | "opacity"
-  | "scale";
-
+  | "scale"
+  | "timeRange";
 export interface SettingValue {
   val: any;
   name: string;
@@ -89,4 +89,53 @@ export const findSceneByName = (name: string) => {
   const state = getState();
 
   return state.scenes.find((scene) => scene.sceneName === name);
+};
+//生成默认的场景数据
+export const genDefaultSceneConfig = (): ISceneConfig["setting"] => {
+  return {
+    label: {
+      val: true,
+      name: "卫星标注",
+    },
+    icon: {
+      val: false,
+      name: "卫星图标",
+    },
+    track: {
+      val: false,
+      name: "卫星轨迹",
+    },
+    light: {
+      val: false,
+      name: "显示光照",
+    },
+    sun: {
+      val: true,
+      name: "显示太阳",
+    },
+    star: {
+      val: true,
+      name: "显示星空",
+    },
+    time: {
+      val: true,
+      name: "显示时间轴",
+    },
+    timeRange: {
+      val: {},
+      name: "时间段",
+    },
+    rotate: {
+      val: true,
+      name: "地球旋转",
+    },
+    scale: {
+      val: "aspectFit",
+      name: "缩放配置",
+    },
+    opacity: {
+      val: 1,
+      name: "透明度",
+    },
+  };
 };

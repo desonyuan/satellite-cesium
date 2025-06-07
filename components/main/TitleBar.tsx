@@ -1,18 +1,37 @@
 import { Button } from "@heroui/button";
 import { cn } from "@heroui/react";
-import { FC, PropsWithChildren } from "react";
+import { FC, PropsWithChildren, useEffect, useRef } from "react";
+import { CzmlDataSource } from "cesium";
 
 import SceneSelect from "./SceneSelect";
 
-import { setsituationMode, useAppStore } from "@/src/store/app.store";
+import { setsituationMode, toggleEditFormModal, useAppStore } from "@/src/store/app.store";
+import { useCesium } from "@/src/context/cesium.context";
+import { loadCzml } from "@/src/tool/czml";
 interface IProps {}
 
 const TitleBar: FC<PropsWithChildren<IProps>> = () => {
+  const { viewer } = useCesium();
+  const ds = useRef<CzmlDataSource>();
   // 场景列表数据
-  const { situationMode, scenes, curScene } = useAppStore();
+  const { situationMode } = useAppStore();
+
+  useEffect(() => {
+    if (viewer) {
+      if (ds.current) {
+        viewer.dataSources.remove(ds.current, true);
+      }
+      if (situationMode === "starlink") {
+        loadCzml(undefined, "/datasource/simple.czml").then((data) => {
+          ds.current = data;
+          viewer.dataSources.add(data);
+        });
+      }
+    }
+  }, [situationMode, viewer]);
 
   return (
-    <div className="flex items-center justify-between w-full absolute top-0 left-0 px-10 py-5">
+    <div className="flex items-center justify-between w-full absolute top-0 left-0 px-10 py-5 z-10">
       <div className="text-white font-bold text-4xl">
         <span>卫星演示</span>
         <span className="text-blue-600">系统</span>
@@ -26,7 +45,7 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
           }}
           className={cn(
             "bg-gradient-to-tr text-white shadow-lg w-60",
-            situationMode === "constellation" ? "from-blue-700 to-blue-700" : "from-blue-950 to-blue-700",
+            situationMode === "constellation" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
           )}
           // onClick={() => {
           //   setSituation({
@@ -49,7 +68,7 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
           }}
           className={cn(
             "bg-gradient-to-tr text-white shadow-lg w-60",
-            situationMode === "starlink" ? "from-blue-700 to-blue-700" : "from-blue-950 to-blue-700",
+            situationMode === "starlink" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
           )}
           // onClick={() => {
           //   setSituation({
@@ -63,7 +82,13 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
         >
           星间链路态势
         </Button>
-        <SceneSelect />
+        <div className="flex items-center gap-x-2">
+          <SceneSelect />
+          <Button color="primary" variant="bordered" onPress={toggleEditFormModal}>
+            添加场景
+          </Button>
+        </div>
+        <div />
         <div className="cesium-button-edit" style={{ width: "32px", height: "32px" }}>
           <div className="editButton" />
         </div>

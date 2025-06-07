@@ -22,6 +22,7 @@ import { useBoolean, useSetState, useUpdateEffect } from "ahooks";
 
 import {
   addScene,
+  genDefaultSceneConfig,
   ISceneConfig,
   setCurDataSource,
   setCurScene,
@@ -49,58 +50,13 @@ const scaleType = [
 
 interface IProps {}
 
-const getDefaultFormValue = (): ISceneConfig["setting"] => {
-  return {
-    label: {
-      val: true,
-      name: "卫星标注",
-    },
-    icon: {
-      val: false,
-      name: "卫星图标",
-    },
-    track: {
-      val: false,
-      name: "卫星轨迹",
-    },
-    light: {
-      val: false,
-      name: "显示光照",
-    },
-    sun: {
-      val: true,
-      name: "显示太阳",
-    },
-    star: {
-      val: true,
-      name: "显示星空",
-    },
-    time: {
-      val: true,
-      name: "显示时间轴",
-    },
-    rotate: {
-      val: true,
-      name: "地球旋转",
-    },
-    scale: {
-      val: "aspectFit",
-      name: "缩放配置",
-    },
-    opacity: {
-      val: 1,
-      name: "透明度",
-    },
-  };
-};
-
 const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
   const { editFromModal } = useAppStore();
   const [fileList, setFileList] = useState<string[]>([]);
   const { viewer } = useCesium();
   const form = useRef<HTMLFormElement>(null);
   const [errors, setErrors] = useState({});
-  const [formValues, setFormValues] = useSetState<ISceneConfig["setting"]>(getDefaultFormValue());
+  const [formValues, setFormValues] = useSetState<ISceneConfig["setting"]>(genDefaultSceneConfig());
   const [sceneName, setSceneName] = useState("");
   const trackFiles = useRef<FileList | null>(null);
   const [satelliteList, setSatelliteList] = useState<string[]>([]);
@@ -183,7 +139,9 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
     } catch (error) {
       console.error(error);
     }
-    startTransition(setLoading.setFalse);
+    startTransition(() => {
+      setLoading.setFalse();
+    });
   };
 
   useUpdateEffect(() => {
@@ -195,7 +153,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
         });
       });
     } else {
-      setFormValues(getDefaultFormValue());
+      setFormValues(genDefaultSceneConfig());
       setErrors({});
     }
   }, [editFromModal]);
@@ -357,7 +315,20 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
                   <div className="flex flex-col gap-y-7 px-5">
                     <div className="flex items-center gap-x-5">
                       <label className="shrink-0 w-28">时间段:</label>
-                      <DateRangePicker />
+                      <DateRangePicker
+                        visibleMonths={2}
+                        onChange={(values) => {
+                          const date: { start?: Date; end?: Date } = {};
+
+                          if (values?.start) {
+                            date.start = values.start.toDate("Asia/Shanghai");
+                          }
+                          if (values?.end) {
+                            date.end = values.end.toDate("Asia/Shanghai");
+                          }
+                          setValue("timeRange", date, "时间段");
+                        }}
+                      />
                     </div>
                     <div className="flex items-center gap-x-5">
                       <label className="shrink-0 w-28">显示卫星图标:</label>
