@@ -16,7 +16,7 @@ export type SettingKey =
   | "opacity"
   | "scale";
 
-interface SettingValue {
+export interface SettingValue {
   val: any;
   name: string;
 }
