@@ -147,9 +147,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
         addScene(data);
         setCurScene(sceneName);
         toggleEditFormModal();
-        setTimeout(() => {
-          LoadSceneConfig(viewer, formValues);
-        }, 500);
+        LoadSceneConfig(viewer, formValues);
       } catch (error) {
         console.error(error);
       }
@@ -418,7 +416,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">自定义设定</ModalHeader>
                 <ModalBody>
                   <Input
                     endContent={
