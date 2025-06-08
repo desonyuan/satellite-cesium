@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import * as echarts from "echarts";
+
 import Box from "../../Box";
 
 const RsChart3: React.FC<any> = () => {
@@ -9,9 +10,6 @@ const RsChart3: React.FC<any> = () => {
   useEffect(() => {
     let myChart = echarts.init(chartRef.current as unknown as HTMLDivElement);
     // 数据
-    var dateBase = new Date();
-    var year = dateBase.getFullYear();
-    var dottedBase = +dateBase + 1000 * 3600 * 24;
     var weekCategory = [];
 
     var radarData: any[] = [];
@@ -25,6 +23,7 @@ const RsChart3: React.FC<any> = () => {
       // 折线图数据
       weekMaxData.push(maxData);
       var distance = Math.round(Math.random() * 11000 + 500);
+
       weekLineData.push(distance);
 
       // 雷达图数据
@@ -33,6 +32,7 @@ const RsChart3: React.FC<any> = () => {
       var maxSpeed = averageSpeed + +(Math.random() * 3).toFixed(2);
       var hour = +(distance / 1000 / averageSpeed).toFixed(1);
       var radarDayData = [distance, averageSpeed, maxSpeed, hour];
+
       radarData.unshift(radarDayData);
 
       // 平均指标
@@ -41,6 +41,7 @@ const RsChart3: React.FC<any> = () => {
       var maxSpeedAvg = averageSpeedAvg + +(Math.random() * 2).toFixed(2);
       var hourAvg = +(distance / 1000 / averageSpeed).toFixed(1);
       var radarDayDataAvg = [distanceAvg, averageSpeedAvg, maxSpeedAvg, hourAvg];
+
       radarDataAvg.unshift(radarDayDataAvg);
     }
     weekCategory = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"];
@@ -188,10 +189,10 @@ const RsChart3: React.FC<any> = () => {
         ],
       },
       grid: {
-        left: 90,
-        right: 80,
-        bottom: 40,
-        top: "60%",
+        left: 80,
+        right: 30,
+        // bottom: 40,
+        // top: "60%",
       },
       xAxis: {
         type: "category",
@@ -370,6 +371,7 @@ const RsChart3: React.FC<any> = () => {
     myChart.on("click", function (params) {
       if (params.componentType === "series" && params.seriesType === "line") {
         var dataIndex = params.dataIndex;
+
         myChart.setOption({
           series: [
             {
@@ -412,9 +414,9 @@ const RsChart3: React.FC<any> = () => {
   }, []);
 
   return (
-    <div className="h-[22%]">
+    <div className="h-[350px]">
       <Box title="卫星平均速度">
-        <div className="h-full" ref={chartRef}></div>
+        <div ref={chartRef} className="h-full" />
       </Box>
     </div>
   );

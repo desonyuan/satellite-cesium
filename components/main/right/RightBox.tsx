@@ -9,7 +9,7 @@ interface IProps {}
 
 const RightBox: FC<PropsWithChildren<IProps>> = () => {
   return (
-    <div className="absolute h-screen right-0 top-0 w-1/4 px-5 pt-20 flex flex-col gap-10">
+    <div className="absolute h-screen right-0 top-0 w-[450px] px-5 pt-32 flex flex-col gap-10">
       <PolarEarth position={[]} />
       <SatelliteWorkTime />
       <RsChart3 />

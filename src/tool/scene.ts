@@ -68,24 +68,26 @@ class ConfigHandler {
   scale(option: SettingValue) {}
   timeRange(option: SettingValue) {
     const { start, end } = option.val;
+    const clock = this.viewer.clock;
+    // const oldClock: Record<string, any> = {};
+    // const startTime = start instanceof Date ? JulianDate.fromDate(start) : JulianDate.now();
 
-    if (start) {
-      this.viewer.clock.startTime = JulianDate.fromDate(start as Date);
-    } else {
-      this.viewer.clock.startTime = JulianDate.fromDate(new Date());
-    }
-    if (end) {
-      this.viewer.clock.stopTime = JulianDate.fromDate(end as Date);
-    }
-    this.viewer.clock.multiplier = 600;
-    this.viewer.clock.shouldAnimate = true;
+    // const stopTime = end instanceof Date ? JulianDate.fromDate(end) : undefined;
+    // for (const key in clock) {
+    //   oldClock[key] = (clock as any)[key];
+    // }
+    // clock.startTime = startTime;
+    // clock.currentTime = startTime;
+    // clock.stopTime = stopTime as any;
+    // clock.multiplier = 600;
+    // clock.shouldAnimate = true;
   }
 }
 
 export const LoadSceneConfig = (viewer: Viewer, config: ISceneConfig["setting"]) => {
   const handler = new ConfigHandler(viewer);
 
-  console.log(config, "1111111111111111");
+  console.log(config, "LoadSceneConfigLoadSceneConfig");
 
   for (const key in config) {
     const _key = key as SettingKey;

@@ -12,17 +12,7 @@ const SceneSelect: FC<PropsWithChildren<IProps>> = () => {
   const scenes = useAppStore((state) => state.scenes);
   const curScene = useAppStore((state) => state.curScene);
   const { viewer } = useCesium();
-  const onSelectionChange = (slection: any) => {
-    const keys = slection as Set<string>;
-
-    console.log("xuanle", Selection);
-
-    let sceneName = "";
-
-    keys.forEach((name: string) => {
-      sceneName = name;
-    });
-    debugger;
+  const onSelectionChange = (sceneName: string) => {
     if (sceneName) {
       const scene = findSceneByName(sceneName);
 
@@ -41,10 +31,14 @@ const SceneSelect: FC<PropsWithChildren<IProps>> = () => {
 
   return (
     <Select
+      color="primary"
       placeholder="初始场景"
-      selectedKeys={curScene ? [curScene] : []}
+      selectedKeys={curScene ? new Set([curScene]) : []}
       style={{ width: 120, marginLeft: "18px", color: "#fff" }}
-      onSelectionChange={onSelectionChange}
+      variant="bordered"
+      onSelectionChange={(selection) => {
+        onSelectionChange(selection.anchorKey!);
+      }}
     >
       {scenes.map((scene) => {
         return <SelectItem key={scene.sceneName}>{scene.sceneName}</SelectItem>;

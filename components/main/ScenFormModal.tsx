@@ -17,7 +17,7 @@ import {
   Form,
 } from "@heroui/react";
 import { CzmlDataSource } from "cesium";
-import { FC, PropsWithChildren, startTransition, useRef, useState } from "react";
+import { FC, PropsWithChildren, useRef, useState } from "react";
 import { useBoolean, useSetState, useUpdateEffect } from "ahooks";
 
 import {
@@ -32,6 +32,7 @@ import {
 } from "@/src/store/app.store";
 import { useCesium } from "@/src/context/cesium.context";
 import { loadCzml } from "@/src/tool/czml";
+import { LoadSceneConfig } from "@/src/tool/scene";
 
 const scaleType = [
   {
@@ -136,12 +137,13 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
       addScene(data);
       setCurScene(sceneName);
       toggleEditFormModal();
+      setTimeout(() => {
+        LoadSceneConfig(viewer, formValues);
+      }, 500);
     } catch (error) {
       console.error(error);
     }
-    startTransition(() => {
-      setLoading.setFalse();
-    });
+    setLoading.setFalse();
   };
 
   useUpdateEffect(() => {

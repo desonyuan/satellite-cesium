@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 
 import Box from "../../Box";
@@ -11,36 +11,26 @@ type Props = {
   position: any[];
 };
 const PolarEarth: React.FC<Props> = ({ position }) => {
-  const [init, setInit] = useState<boolean>(false);
-  const polarChartRef = useRef(null);
-  const mapChartRef = useRef(null);
+  const polarChartRef = useRef<HTMLDivElement>(null);
+  const mapChartRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setInit(true);
-  }, []);
+  // useEffect(() => {
+  //   if (init) {
+  //     //@ts-ignore
+  //     let data = [],
+  //       cate: any[] = [];
 
-  useEffect(() => {
-    if (init) {
-      //@ts-ignore
-      let data = [],
-        cate: any[] = [];
-
-      for (let item of position) {
-        data.push([...lnglat2polat(item[0], item[1]), item[2]]);
-        cate.push(item[2]);
-      }
-      drawPolarEarth(data, cate);
-      draw2DEarth(position, cate);
-    }
-  }, [position]);
+  //     for (let item of position) {
+  //       data.push([...lnglat2polat(item[0], item[1]), item[2]]);
+  //       cate.push(item[2]);
+  //     }
+  //     drawPolarEarth(data, cate);
+  //     draw2DEarth(position, cate);
+  //   }
+  // }, [position]);
 
   const drawPolarEarth = (data: any, cate: any) => {
-    let myChart = echarts.getInstanceByDom(polarChartRef.current as unknown as HTMLDivElement);
-
-    if (myChart == null) {
-      myChart = echarts.init(polarChartRef.current as unknown as HTMLDivElement);
-    }
-
+    let myChart = echarts.init(polarChartRef.current);
     let option = {
       polar: {},
       grid: {
@@ -175,11 +165,8 @@ const PolarEarth: React.FC<Props> = ({ position }) => {
   };
 
   const draw2DEarth = (data: any, cate: any) => {
-    let myChart = echarts.getInstanceByDom(mapChartRef.current as unknown as HTMLDivElement);
+    let myChart = echarts.init(mapChartRef.current);
 
-    if (myChart == null) {
-      myChart = echarts.init(mapChartRef.current as unknown as HTMLDivElement);
-    }
     echarts.registerMap("world", geoMap as any);
     let option = {
       tooltip: {
@@ -288,8 +275,13 @@ const PolarEarth: React.FC<Props> = ({ position }) => {
     myChart.resize();
   };
 
+  useEffect(() => {
+    drawPolarEarth([], []);
+    draw2DEarth([], []);
+  }, []);
+
   return (
-    <div className="h-[22%] w-full">
+    <div className="h-[250px] w-full">
       <Box title="极地图">
         <div className="flex items-center h-full">
           <div ref={polarChartRef} className="w-1/2 h-full" />
