@@ -35,7 +35,7 @@ const SceneSelect: FC<PropsWithChildren<IProps>> = () => {
       placeholder="初始场景"
       selectedKeys={curScene ? new Set([curScene]) : []}
       style={{ width: 120, marginLeft: "18px", color: "#fff" }}
-      variant="bordered"
+      // variant="bordered"
       onSelectionChange={(selection) => {
         onSelectionChange(selection.anchorKey!);
       }}
