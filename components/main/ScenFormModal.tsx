@@ -136,6 +136,11 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
 
       return;
     }
+    if (!sceneName) {
+      setErrors({ sceneName: "场景名称不能为空" });
+
+      return;
+    }
     setLoading.setTrue();
     const selectSatellite = satelliteList[0];
 
@@ -161,7 +166,6 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
       fetch("/api/model/list").then((res) => {
         res.json().then((json) => {
           setFileList([...json.files, "自定义"]);
-          setSatelliteList([json.files[0]]);
         });
       });
     } else {

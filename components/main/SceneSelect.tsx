@@ -18,13 +18,21 @@ const SceneSelect: FC<PropsWithChildren<IProps>> = () => {
 
       if (scene && viewer) {
         viewer.dataSources.removeAll();
+        const filename = scene.satelliteList[0];
+
         // 加载文件
-        loadCzml(scene.satelliteList[0]).then((ds) => {
-          viewer.dataSources.add(ds);
-          setCurDataSource(ds);
+        if (filename) {
+          loadCzml(filename).then((ds) => {
+            viewer.dataSources.add(ds);
+            setCurDataSource(ds);
+            LoadSceneConfig(viewer, scene.setting);
+            setCurScene(sceneName);
+          });
+        } else {
+          setCurDataSource(undefined);
           LoadSceneConfig(viewer, scene.setting);
           setCurScene(sceneName);
-        });
+        }
       }
     }
   };
@@ -35,7 +43,6 @@ const SceneSelect: FC<PropsWithChildren<IProps>> = () => {
       placeholder="初始场景"
       selectedKeys={curScene ? new Set([curScene]) : []}
       style={{ width: 120, marginLeft: "18px", color: "#fff" }}
-      // variant="bordered"
       onSelectionChange={(selection) => {
         onSelectionChange(selection.anchorKey!);
       }}
