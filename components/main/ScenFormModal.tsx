@@ -17,14 +17,13 @@ import {
   Form,
   Modal,
   ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   useDisclosure,
 } from "@heroui/react";
 import { CzmlDataSource } from "cesium";
 import { FC, PropsWithChildren, useRef, useState } from "react";
 import { useBoolean, useSetState, useUpdateEffect } from "ahooks";
+
+import CustomScenForm from "./CustomScenForm";
 
 import {
   addScene,
@@ -69,6 +68,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
   const [satelliteList, setSatelliteList] = useState<string[]>([]);
   const [loading, setLoading] = useBoolean();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const setValue = (key: SettingKey, val: any, name: string) => {
     setFormValues({
       [key]: {
@@ -417,120 +417,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
           </CardFooter>
         </Card>
         <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">自定义设定</ModalHeader>
-                <ModalBody>
-                  <Input
-                    endContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">km</span>
-                      </div>
-                    }
-                    label="半长轴"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">a</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    label="偏心率 "
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">e</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    endContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">(°)</span>
-                      </div>
-                    }
-                    label="倾角"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">i</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    endContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">(°)</span>
-                      </div>
-                    }
-                    label="升交点赤经"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">Ω</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    endContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">(°)</span>
-                      </div>
-                    }
-                    label="近地点幅角"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">ω</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    endContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">(°)</span>
-                      </div>
-                    }
-                    label="平近点角"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">M₀</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    label="轨道面数"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">T</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    label="每面卫星数"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">S</span>
-                      </div>
-                    }
-                  />
-                  <Input
-                    label="相位因子"
-                    startContent={
-                      <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">F</span>
-                      </div>
-                    }
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    取消
-                  </Button>
-                  <Button color="primary" onPress={onClose}>
-                    确定
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
+          <ModalContent>{(onClose) => <CustomScenForm onClose={onClose} />}</ModalContent>
         </Modal>
       </div>
     );

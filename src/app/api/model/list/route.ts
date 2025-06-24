@@ -1,14 +1,18 @@
-import {readdirSync} from 'fs';
-import {NextResponse} from 'next/server';
-import {join} from 'path';
+import { readdirSync } from "fs";
+import { join } from "path";
+
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const dirs = readdirSync(join(process.cwd(), 'public', 'model'));
+  const dirs = readdirSync(join(process.cwd(), "public", "model"));
+
   return NextResponse.json({
     files: dirs.map((filename) => {
-      const nameArr = filename.split('.');
+      const nameArr = filename.split(".");
+
       nameArr.pop();
-      return nameArr.join('');
+
+      return nameArr.join("");
     }),
   });
 }
