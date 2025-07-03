@@ -136,8 +136,8 @@ const RsChart3: React.FC<any> = () => {
         trigger: "none",
       },
       radar: {
-        center: ["68%", "30%"],
-        radius: "40%",
+        center: ["68%", "20%"],
+        radius: "20%",
         name: {
           color: "#fff",
         },

@@ -1,0 +1,342 @@
+Satellite 1
+Start: 1238
+Stop:  2498
+
+Satellite 2
+  No access intervals.
+
+Satellite 3
+Start: 0
+Stop:  484
+
+Start: 2107
+Stop:  2879
+
+Satellite 4
+Start: 235
+Stop:  1512
+
+Satellite 5
+Start: 1156
+Stop:  2404
+
+Satellite 6
+Start: 0
+Stop:  409
+
+Start: 2039
+Stop:  2879
+
+Satellite 7
+  No access intervals.
+
+Satellite 8
+Start: 202
+Stop:  836
+
+Start: 1748
+Stop:  2382
+
+Satellite 9
+Start: 0
+Stop:  628
+
+Start: 1540
+Stop:  2174
+
+Satellite 10
+Start: 699
+Stop:  1333
+
+Start: 2245
+Stop:  2879
+
+Satellite 11
+  No access intervals.
+
+Satellite 12
+Start: 0
+Stop:  590
+
+Start: 2206
+Stop:  2879
+
+Satellite 13
+Start: 559
+Stop:  1193
+
+Start: 2105
+Stop:  2739
+
+Satellite 14
+Start: 0
+Stop:  580
+
+Start: 1492
+Stop:  2126
+
+Satellite 15
+Start: 0
+Stop:  318
+
+Start: 1934
+Stop:  2879
+
+Satellite 16
+Start: 86
+Stop:  1353
+
+Satellite 17
+  No access intervals.
+
+Satellite 18
+Start: 27
+Stop:  661
+
+Start: 1573
+Stop:  2208
+
+Satellite 19
+Start: 0
+Stop:  478
+
+Start: 1390
+Stop:  2025
+
+Satellite 20
+Start: 674
+Stop:  1309
+
+Start: 2221
+Stop:  2855
+
+Satellite 21
+Start: 500
+Stop:  1133
+
+Start: 2046
+Stop:  2679
+
+Satellite 22
+Start: 222
+Stop:  857
+
+Start: 1768
+Stop:  2403
+
+Satellite 23
+Start: 414
+Stop:  1048
+
+Start: 1960
+Stop:  2595
+
+Satellite 24
+Start: 0
+Stop:  146
+
+Start: 1059
+Stop:  1692
+
+Start: 2605
+Stop:  2879
+
+Satellite 25
+Start: 834
+Stop:  1468
+
+Start: 2381
+Stop:  2879
+
+Satellite 26
+Start: 1260
+Stop:  2514
+
+Satellite 27
+Start: 0
+Stop:  576
+
+Start: 1491
+Stop:  2123
+
+Satellite 28
+Start: 0
+Stop:  191
+
+Start: 1105
+Stop:  1737
+
+Start: 2652
+Stop:  2879
+
+Satellite 29
+Start: 906
+Stop:  1539
+
+Start: 2453
+Stop:  2879
+
+Satellite 30
+Start: 0
+Stop:  374
+
+Start: 1288
+Stop:  1920
+
+Start: 2834
+Stop:  2879
+
+Satellite 31
+Start: 0
+Stop:  274
+
+Start: 1186
+Stop:  1820
+
+Start: 2732
+Stop:  2879
+
+Satellite 32
+Start: 798
+Stop:  1433
+
+Start: 2345
+Stop:  2879
+
+Satellite 33
+Start: 0
+Stop:  360
+
+Start: 1273
+Stop:  1906
+
+Start: 2819
+Stop:  2879
+
+Satellite 34
+Start: 98
+Stop:  732
+
+Start: 1645
+Stop:  2279
+
+Satellite 35
+  No access intervals.
+
+Satellite 36
+Start: 525
+Stop:  1157
+
+Start: 2072
+Stop:  2703
+
+Satellite 37
+Start: 141
+Stop:  772
+
+Start: 1687
+Stop:  2319
+
+Satellite 38
+Start: 221
+Stop:  1489
+
+Satellite 39
+  No access intervals.
+
+Satellite 40
+Start: 1285
+Stop:  2549
+
+Satellite 41
+Start: 336
+Stop:  968
+
+Start: 1882
+Stop:  2515
+
+Satellite 42
+Start: 713
+Stop:  1346
+
+Start: 2260
+Stop:  2879
+
+Satellite 43
+Start: 0
+Stop:  582
+
+Start: 2185
+Stop:  2879
+
+Satellite 44
+Start: 0
+Stop:  533
+
+Start: 1446
+Stop:  2079
+
+Satellite 45
+Start: 249
+Stop:  882
+
+Start: 1795
+Stop:  2429
+
+Satellite 46
+Start: 0
+Stop:  74
+
+Start: 988
+Stop:  1621
+
+Start: 2534
+Stop:  2879
+
+Satellite 47
+Start: 602
+Stop:  1235
+
+Start: 2148
+Stop:  2782
+
+Satellite 48
+  No access intervals.
+
+Satellite 49
+  No access intervals.
+
+Satellite 50
+  No access intervals.
+
+Satellite 51
+Start: 510
+Stop:  1143
+
+Start: 2056
+Stop:  2689
+
+Satellite 52
+Start: 0
+Stop:  563
+
+Start: 1476
+Stop:  2109
+
+Satellite 53
+Start: 0
+Stop:  45
+
+Start: 958
+Stop:  1591
+
+Start: 2504
+Stop:  2879
+
+Satellite 54
+Start: 379
+Stop:  1013
+
+Start: 1925
+Stop:  2560
+

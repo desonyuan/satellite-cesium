@@ -1,0 +1,1423 @@
+Satellite 1
+Start: 0
+Stop:  1208
+
+Start: 2400
+Stop:  4081
+
+Start: 5273
+Stop:  6953
+
+Start: 8146
+Stop:  9825
+
+Start: 11019
+Stop:  12697
+
+Start: 13891
+Stop:  15569
+
+Start: 16764
+Stop:  18441
+
+Start: 19637
+Stop:  20159
+
+Satellite 2
+Start: 0
+Stop:  20159
+
+Satellite 3
+Start: 345
+Stop:  2106
+
+Start: 3215
+Stop:  4978
+
+Start: 6085
+Stop:  7850
+
+Start: 8954
+Stop:  10722
+
+Start: 11824
+Stop:  13595
+
+Start: 14694
+Stop:  16467
+
+Start: 17564
+Stop:  19339
+
+Satellite 4
+Start: 0
+Stop:  220
+
+Start: 1373
+Stop:  3092
+
+Start: 4244
+Stop:  5964
+
+Start: 7115
+Stop:  8836
+
+Start: 9986
+Stop:  11708
+
+Start: 12857
+Stop:  14580
+
+Start: 15728
+Stop:  17452
+
+Start: 18598
+Stop:  20159
+
+Satellite 5
+Start: 0
+Stop:  1213
+
+Start: 2165
+Stop:  4085
+
+Start: 5037
+Stop:  6957
+
+Start: 7910
+Stop:  9829
+
+Start: 10783
+Stop:  12702
+
+Start: 13655
+Stop:  15574
+
+Start: 16528
+Stop:  18446
+
+Start: 19401
+Stop:  20159
+
+Satellite 6
+Start: 175
+Stop:  2099
+
+Start: 3047
+Stop:  4972
+
+Start: 5918
+Stop:  7844
+
+Start: 8789
+Stop:  10716
+
+Start: 11661
+Stop:  13588
+
+Start: 14532
+Stop:  16460
+
+Start: 17403
+Stop:  19332
+
+Satellite 7
+Start: 0
+Stop:  20159
+
+Satellite 8
+Start: 820
+Stop:  1846
+
+Start: 4062
+Stop:  4969
+
+Start: 5609
+Stop:  5965
+
+Start: 7294
+Stop:  8043
+
+Start: 8544
+Stop:  9125
+
+Start: 10473
+Stop:  11047
+
+Start: 11551
+Stop:  12305
+
+Start: 13633
+Stop:  13981
+
+Start: 14626
+Stop:  15539
+
+Start: 17751
+Stop:  18779
+
+Satellite 9
+Start: 536
+Stop:  1568
+
+Start: 3715
+Stop:  4735
+
+Start: 6962
+Stop:  7855
+
+Start: 8478
+Stop:  8855
+
+Start: 10189
+Stop:  10924
+
+Start: 11419
+Stop:  12016
+
+Start: 13364
+Stop:  13922
+
+Start: 14432
+Stop:  15199
+
+Start: 16525
+Stop:  16849
+
+Start: 17513
+Stop:  18438
+
+Satellite 10
+Start: 214
+Stop:  558
+
+Start: 1204
+Stop:  2116
+
+Start: 4329
+Stop:  5356
+
+Start: 7504
+Stop:  8530
+
+Start: 10745
+Stop:  11655
+
+Start: 12294
+Stop:  12643
+
+Start: 13977
+Stop:  14729
+
+Start: 15226
+Stop:  15805
+
+Start: 17156
+Stop:  17733
+
+Start: 18232
+Stop:  18986
+
+Satellite 11
+Start: 0
+Stop:  20159
+
+Satellite 12
+Start: 351
+Stop:  2281
+
+Start: 3224
+Stop:  5153
+
+Start: 6096
+Stop:  8025
+
+Start: 8969
+Stop:  10897
+
+Start: 11842
+Stop:  13770
+
+Start: 14714
+Stop:  16642
+
+Start: 17587
+Stop:  19514
+
+Satellite 13
+Start: 0
+Stop:  106
+
+Start: 1430
+Stop:  2229
+
+Start: 2755
+Stop:  3272
+
+Start: 4622
+Stop:  5256
+
+Start: 5736
+Stop:  6444
+
+Start: 7786
+Stop:  8206
+
+Start: 8794
+Stop:  9658
+
+Start: 10984
+Stop:  11066
+
+Start: 11906
+Stop:  12909
+
+Start: 15063
+Stop:  16102
+
+Start: 18285
+Stop:  19240
+
+Start: 19950
+Stop:  20159
+
+Satellite 14
+Start: 479
+Stop:  1500
+
+Start: 3649
+Stop:  4679
+
+Start: 6886
+Stop:  7806
+
+Start: 8464
+Stop:  8789
+
+Start: 10122
+Stop:  10886
+
+Start: 11389
+Stop:  11952
+
+Start: 13304
+Stop:  13896
+
+Start: 14388
+Stop:  15129
+
+Start: 16466
+Stop:  16831
+
+Start: 17459
+Stop:  18357
+
+Satellite 15
+Start: 98
+Stop:  1991
+
+Start: 2970
+Stop:  4863
+
+Start: 5843
+Stop:  7735
+
+Start: 8715
+Stop:  10607
+
+Start: 11587
+Stop:  13479
+
+Start: 14460
+Stop:  16351
+
+Start: 17332
+Stop:  19223
+
+Satellite 16
+Start: 0
+Stop:  177
+
+Start: 1090
+Stop:  3049
+
+Start: 3961
+Stop:  5920
+
+Start: 6832
+Stop:  8792
+
+Start: 9703
+Stop:  11664
+
+Start: 12574
+Stop:  14536
+
+Start: 15445
+Stop:  17408
+
+Start: 18316
+Stop:  20159
+
+Satellite 17
+Start: 0
+Stop:  20159
+
+Satellite 18
+Start: 0
+Stop:  156
+
+Start: 805
+Stop:  1144
+
+Start: 2475
+Stop:  3233
+
+Start: 3735
+Stop:  4306
+
+Start: 5656
+Stop:  6240
+
+Start: 6737
+Stop:  7485
+
+Start: 8818
+Stop:  9174
+
+Start: 9811
+Stop:  10717
+
+Start: 12935
+Stop:  13960
+
+Start: 16107
+Stop:  17135
+
+Start: 19346
+Stop:  20159
+
+Satellite 19
+Start: 2179
+Stop:  3067
+
+Start: 3683
+Stop:  4065
+
+Start: 5403
+Stop:  6134
+
+Start: 6624
+Stop:  7227
+
+Start: 8577
+Stop:  9128
+
+Start: 9639
+Stop:  10412
+
+Start: 11740
+Stop:  12050
+
+Start: 12722
+Stop:  13653
+
+Start: 15853
+Stop:  16886
+
+Start: 19035
+Stop:  20052
+
+Satellite 20
+Start: 0
+Stop:  258
+
+Start: 1602
+Stop:  2324
+
+Start: 2804
+Stop:  3424
+
+Start: 4777
+Stop:  5310
+
+Start: 5825
+Stop:  6613
+
+Start: 7944
+Stop:  8222
+
+Start: 8913
+Stop:  9856
+
+Start: 12049
+Stop:  13085
+
+Start: 15237
+Stop:  16248
+
+Start: 18486
+Stop:  19365
+
+Start: 19966
+Stop:  20159
+
+Satellite 21
+Start: 0
+Stop:  4
+
+Start: 1331
+Stop:  2177
+
+Start: 2742
+Stop:  3191
+
+Start: 4539
+Stop:  5226
+
+Start: 5699
+Stop:  6358
+
+Start: 7708
+Stop:  8196
+
+Start: 8736
+Stop:  9556
+
+Start: 10882
+Stop:  11091
+
+Start: 11835
+Stop:  12806
+
+Start: 14979
+Stop:  16020
+
+Start: 18180
+Stop:  19172
+
+Start: 19973
+Stop:  20105
+
+Satellite 22
+Start: 0
+Stop:  341
+
+Start: 853
+Stop:  1399
+
+Start: 2750
+Stop:  3357
+
+Start: 3846
+Stop:  4574
+
+Start: 5912
+Stop:  6299
+
+Start: 6913
+Stop:  7798
+
+Start: 10031
+Stop:  11046
+
+Start: 13196
+Stop:  14230
+
+Start: 16428
+Stop:  17361
+
+Start: 18036
+Stop:  18341
+
+Start: 19669
+Stop:  20159
+
+Satellite 23
+Start: 0
+Stop:  471
+
+Start: 953
+Stop:  1660
+
+Start: 3001
+Stop:  3421
+
+Start: 4011
+Stop:  4875
+
+Start: 6195
+Stop:  6286
+
+Start: 7123
+Stop:  8127
+
+Start: 10280
+Stop:  11319
+
+Start: 13502
+Stop:  14456
+
+Start: 15163
+Stop:  15426
+
+Start: 16749
+Stop:  17547
+
+Start: 18075
+Stop:  18591
+
+Start: 19940
+Stop:  20159
+
+Satellite 24
+Start: 29
+Stop:  790
+
+Start: 2128
+Stop:  2458
+
+Start: 3108
+Stop:  4025
+
+Start: 6235
+Stop:  7263
+
+Start: 9412
+Stop:  10437
+
+Start: 12654
+Stop:  13562
+
+Start: 14199
+Stop:  14546
+
+Start: 15885
+Stop:  16637
+
+Start: 17127
+Stop:  17711
+
+Start: 19065
+Stop:  19638
+
+Start: 20133
+Stop:  20159
+
+Satellite 25
+Start: 0
+Stop:  475
+
+Start: 1829
+Stop:  2405
+
+Start: 2899
+Stop:  3657
+
+Start: 4995
+Stop:  5330
+
+Start: 5977
+Stop:  6892
+
+Start: 9104
+Stop:  10132
+
+Start: 12281
+Stop:  13306
+
+Start: 15523
+Stop:  16432
+
+Start: 17071
+Stop:  17415
+
+Start: 18755
+Stop:  19508
+
+Start: 19999
+Stop:  20159
+
+Satellite 26
+Start: 0
+Stop:  1209
+
+Start: 2448
+Stop:  4081
+
+Start: 5318
+Stop:  6953
+
+Start: 8189
+Stop:  9825
+
+Start: 11059
+Stop:  12697
+
+Start: 13929
+Stop:  15569
+
+Start: 16799
+Stop:  18441
+
+Start: 19670
+Stop:  20159
+
+Satellite 27
+Start: 958
+Stop:  1482
+
+Start: 1995
+Stop:  2796
+
+Start: 4133
+Stop:  4382
+
+Start: 5088
+Stop:  6041
+
+Start: 8227
+Stop:  9266
+
+Start: 11419
+Stop:  12428
+
+Start: 14669
+Stop:  15545
+
+Start: 16135
+Stop:  16538
+
+Start: 17887
+Stop:  18606
+
+Start: 19076
+Stop:  19708
+
+Satellite 28
+Start: 402
+Stop:  1239
+
+Start: 1784
+Stop:  2252
+
+Start: 3606
+Stop:  4281
+
+Start: 4746
+Stop:  5424
+
+Start: 6777
+Stop:  7240
+
+Start: 7790
+Stop:  8629
+
+Start: 9968
+Stop:  10112
+
+Start: 10895
+Stop:  11879
+
+Start: 14046
+Stop:  15087
+
+Start: 17254
+Stop:  18237
+
+Start: 19015
+Stop:  19166
+
+Satellite 29
+Start: 69
+Stop:  1032
+
+Start: 1761
+Stop:  1980
+
+Start: 3316
+Stop:  4130
+
+Start: 4654
+Stop:  5158
+
+Start: 6513
+Stop:  7160
+
+Start: 7628
+Stop:  8332
+
+Start: 9683
+Stop:  10108
+
+Start: 10684
+Stop:  11546
+
+Start: 13797
+Stop:  14798
+
+Start: 16956
+Stop:  17995
+
+Satellite 30
+Start: 685
+Stop:  1381
+
+Start: 1848
+Stop:  2503
+
+Start: 3858
+Stop:  4351
+
+Start: 4882
+Stop:  5702
+
+Start: 7037
+Stop:  7240
+
+Start: 7981
+Stop:  8950
+
+Start: 11126
+Stop:  12166
+
+Start: 14326
+Stop:  15322
+
+Start: 16152
+Stop:  16225
+
+Start: 17576
+Stop:  18433
+
+Start: 19000
+Stop:  19436
+
+Satellite 31
+Start: 1832
+Stop:  2841
+
+Start: 3716
+Stop:  3743
+
+Start: 5081
+Stop:  5956
+
+Start: 6555
+Stop:  6960
+
+Start: 8300
+Stop:  9017
+
+Start: 9502
+Stop:  10122
+
+Start: 11472
+Stop:  12004
+
+Start: 12523
+Stop:  13311
+
+Start: 14635
+Stop:  14920
+
+Start: 15611
+Stop:  16555
+
+Start: 18745
+Stop:  19782
+
+Satellite 32
+Start: 355
+Stop:  557
+
+Start: 1314
+Stop:  2291
+
+Start: 4460
+Stop:  5501
+
+Start: 7666
+Stop:  8650
+
+Start: 9419
+Stop:  9603
+
+Start: 10919
+Stop:  11753
+
+Start: 12312
+Stop:  12777
+
+Start: 14123
+Stop:  14798
+
+Start: 15276
+Stop:  15943
+
+Start: 17290
+Stop:  17765
+
+Start: 18318
+Stop:  19145
+
+Satellite 33
+Start: 229
+Stop:  1140
+
+Start: 3355
+Stop:  4380
+
+Start: 6529
+Stop:  7556
+
+Start: 9769
+Stop:  10683
+
+Start: 11327
+Stop:  11662
+
+Start: 13001
+Stop:  13760
+
+Start: 14253
+Stop:  14828
+
+Start: 16182
+Stop:  16764
+
+Start: 17255
+Stop:  18009
+
+Start: 19348
+Stop:  19691
+
+Satellite 34
+Start: 684
+Stop:  1723
+
+Start: 3905
+Stop:  4864
+
+Start: 5583
+Stop:  5822
+
+Start: 7152
+Stop:  7959
+
+Start: 8484
+Stop:  8994
+
+Start: 10347
+Stop:  10988
+
+Start: 11462
+Stop:  12167
+
+Start: 13514
+Stop:  13937
+
+Start: 14518
+Stop:  15381
+
+Start: 16727
+Stop:  16782
+
+Start: 17631
+Stop:  18633
+
+Satellite 35
+  No access intervals.
+
+Satellite 36
+Start: 0
+Stop:  527
+
+Start: 2676
+Stop:  3709
+
+Start: 5909
+Stop:  6842
+
+Start: 7511
+Stop:  7808
+
+Start: 9147
+Stop:  9926
+
+Start: 10424
+Stop:  10978
+
+Start: 12335
+Stop:  12939
+
+Start: 13416
+Stop:  14158
+
+Start: 15503
+Stop:  15870
+
+Start: 16486
+Stop:  17384
+
+Start: 19609
+Stop:  20159
+
+Satellite 37
+Start: 1224
+Stop:  1511
+
+Start: 2189
+Stop:  3126
+
+Start: 5323
+Stop:  6358
+
+Start: 8508
+Stop:  9526
+
+Start: 11755
+Stop:  12648
+
+Start: 13259
+Stop:  13633
+
+Start: 14980
+Stop:  15716
+
+Start: 16192
+Stop:  16802
+
+Start: 18158
+Stop:  18706
+
+Start: 19207
+Stop:  19991
+
+Satellite 38
+Start: 0
+Stop:  211
+
+Start: 1350
+Stop:  3082
+
+Start: 4219
+Stop:  5954
+
+Start: 7088
+Stop:  8826
+
+Start: 9957
+Stop:  11698
+
+Start: 12826
+Stop:  14570
+
+Start: 15695
+Stop:  17442
+
+Start: 18564
+Stop:  20159
+
+Satellite 39
+  No access intervals.
+
+Satellite 40
+Start: 0
+Stop:  1183
+
+Start: 2700
+Stop:  4055
+
+Start: 5570
+Stop:  6927
+
+Start: 8440
+Stop:  9799
+
+Start: 11310
+Stop:  12671
+
+Start: 14180
+Stop:  15543
+
+Start: 17050
+Stop:  18415
+
+Start: 19919
+Stop:  20159
+
+Satellite 41
+Start: 0
+Stop:  207
+
+Start: 2418
+Stop:  3446
+
+Start: 5595
+Stop:  6621
+
+Start: 8835
+Stop:  9747
+
+Start: 10386
+Stop:  10725
+
+Start: 12067
+Stop:  12823
+
+Start: 13311
+Stop:  13893
+
+Start: 15249
+Stop:  15824
+
+Start: 16315
+Stop:  17076
+
+Start: 18416
+Stop:  18747
+
+Start: 19393
+Stop:  20159
+
+Satellite 42
+Start: 0
+Stop:  795
+
+Start: 2980
+Stop:  3934
+
+Start: 4641
+Stop:  4891
+
+Start: 6226
+Stop:  7027
+
+Start: 7543
+Stop:  8064
+
+Start: 9419
+Stop:  10052
+
+Start: 10524
+Stop:  11239
+
+Start: 12587
+Stop:  12995
+
+Start: 13584
+Stop:  14457
+
+Start: 16700
+Stop:  17707
+
+Start: 19862
+Stop:  20159
+
+Satellite 43
+Start: 482
+Stop:  2158
+
+Start: 3350
+Stop:  5030
+
+Start: 6219
+Stop:  7902
+
+Start: 9087
+Stop:  10774
+
+Start: 11955
+Stop:  13646
+
+Start: 14823
+Stop:  16518
+
+Start: 17691
+Stop:  19390
+
+Satellite 44
+Start: 424
+Stop:  1435
+
+Start: 3588
+Stop:  4624
+
+Start: 6815
+Stop:  7760
+
+Start: 8454
+Stop:  8724
+
+Start: 10058
+Stop:  10850
+
+Start: 11363
+Stop:  11894
+
+Start: 13248
+Stop:  13871
+
+Start: 14348
+Stop:  15069
+
+Start: 16415
+Stop:  16812
+
+Start: 17411
+Stop:  18289
+
+Satellite 45
+Start: 913
+Stop:  1911
+
+Start: 2738
+Stop:  2824
+
+Start: 4165
+Stop:  5021
+
+Start: 5594
+Stop:  6027
+
+Start: 7376
+Stop:  8075
+
+Start: 8546
+Stop:  9195
+
+Start: 10548
+Stop:  11048
+
+Start: 11579
+Stop:  12392
+
+Start: 13723
+Stop:  13944
+
+Start: 14676
+Stop:  15641
+
+Start: 17819
+Stop:  18859
+
+Satellite 46
+Start: 1543
+Stop:  2584
+
+Start: 4738
+Stop:  5740
+
+Start: 6562
+Stop:  6672
+
+Start: 7990
+Stop:  8851
+
+Start: 9433
+Stop:  9861
+
+Start: 11203
+Stop:  11906
+
+Start: 12386
+Stop:  13026
+
+Start: 14374
+Stop:  14885
+
+Start: 15415
+Stop:  16220
+
+Start: 17540
+Stop:  17793
+
+Start: 18509
+Stop:  19468
+
+Satellite 47
+Start: 86
+Stop:  540
+
+Start: 1106
+Stop:  1949
+
+Start: 3264
+Stop:  3426
+
+Start: 4212
+Stop:  5202
+
+Start: 7362
+Stop:  8404
+
+Start: 10574
+Stop:  11548
+
+Start: 12291
+Stop:  12507
+
+Start: 13825
+Stop:  14646
+
+Start: 15191
+Stop:  15677
+
+Start: 17024
+Stop:  17684
+
+Start: 18162
+Stop:  18845
+
+Satellite 48
+Start: 0
+Stop:  20159
+
+Satellite 49
+Start: 0
+Stop:  20159
+
+Satellite 50
+Start: 0
+Stop:  20159
+
+Satellite 51
+Start: 0
+Stop:  514
+
+Start: 1021
+Stop:  1802
+
+Start: 3135
+Stop:  3429
+
+Start: 4106
+Stop:  5042
+
+Start: 7239
+Stop:  8273
+
+Start: 10423
+Stop:  11440
+
+Start: 13669
+Stop:  14559
+
+Start: 15172
+Stop:  15551
+
+Start: 16893
+Stop:  17627
+
+Start: 18109
+Stop:  18716
+
+Start: 20069
+Stop:  20159
+
+Satellite 52
+Start: 0
+Stop:  51
+
+Start: 812
+Stop:  996
+
+Start: 2323
+Stop:  3153
+
+Start: 3700
+Stop:  4175
+
+Start: 5525
+Stop:  6194
+
+Start: 6666
+Stop:  7344
+
+Start: 8693
+Stop:  9155
+
+Start: 9711
+Stop:  10550
+
+Start: 11876
+Stop:  12036
+
+Start: 12816
+Stop:  13802
+
+Start: 15966
+Stop:  17008
+
+Start: 19176
+Stop:  20155
+
+Satellite 53
+Start: 0
+Stop:  638
+
+Start: 1986
+Stop:  2455
+
+Start: 3008
+Stop:  3841
+
+Start: 5164
+Stop:  5343
+
+Start: 6111
+Stop:  7093
+
+Start: 9260
+Stop:  10301
+
+Start: 12468
+Stop:  13450
+
+Start: 14218
+Stop:  14396
+
+Start: 15720
+Stop:  16553
+
+Start: 17106
+Stop:  17574
+
+Start: 18923
+Stop:  19596
+
+Start: 20070
+Stop:  20159
+
+Satellite 54
+Start: 1125
+Stop:  2055
+
+Start: 2724
+Stop:  3031
+
+Start: 4364
+Stop:  5138
+
+Start: 5643
+Stop:  6196
+
+Start: 7549
+Stop:  8151
+
+Start: 8637
+Stop:  9373
+
+Start: 10713
+Stop:  11088
+
+Start: 11706
+Stop:  12598
+
+Start: 14826
+Stop:  15844
+
+Start: 17993
+Stop:  19026
+

@@ -1,0 +1,14 @@
+USEUNIT("HPOP.cpp");
+USEUNIT("APC_Moon.cpp");
+USEUNIT("APC_Sun.cpp");
+USEUNIT("eopspw.cpp");
+USEUNIT("nrlmsise-00.cpp");
+USEUNIT("nrlmsise-00_data.cpp");
+USEUNIT("SAT_Force.cpp");
+USEUNIT("SAT_RefSys.cpp");
+USEUNIT("SAT_Time.cpp");
+USEUNIT("SAT_VecMat.cpp");
+//---------------------------------------------------------------------------
+This file is used by the project manager only and should be treated like the project file
+
+main

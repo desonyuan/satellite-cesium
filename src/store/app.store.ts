@@ -75,7 +75,7 @@ export interface ISceneConfig {
 }
 
 type AppStoreType = {
-  situationMode: "constellation" | "starlink";
+  situationMode: "constellation" | "starlink" | "simulation";
   editFromModal: boolean;
   scenes: ISceneConfig[]; //保存的场景配置
   curScene?: string; //当前选中的场景配置名称

@@ -1,0 +1,508 @@
+//------------------------------------------------------------------------------
+//
+// High Precision Orbit Propagator
+//
+//
+// Last modified:
+//
+//   2000/03/04  OMO  Final version (1st edition)
+//   2005/04/14  OMO  Final version (2nd reprint)
+//
+// (c) 1999-2024  O. Montenbruck, E. Gill, Meysam Mahooti, and David A. Vallado
+//
+//------------------------------------------------------------------------------
+
+#include <iostream>
+#include <iomanip>
+#include <conio.h>
+#include <math.h>
+#include <fstream>
+#include <time.h>
+
+#include "GNU_iomanip.h"
+
+#include "SAT_Const.h"
+#include "SAT_Force.h"
+#include "SAT_RefSys.h"
+#include "SAT_Time.h"
+#include "SAT_VecMat.h"
+#include "APC_Moon.h"
+#include "APC_Sun.h"
+#include "eopspw.h"
+
+using namespace std;
+
+//------------------------------------------------------------------------------
+//
+// Global types and data
+//
+//------------------------------------------------------------------------------
+Matrix cnm(361,361),snm(361,361);
+const double R_ref = 6378.1363e3;   // Earth's radius [m]; GGM03C
+const double GM_ref =398600.4415e9; // [m^3/s^2]; GGM03C
+eopdata eoparr[eopsize];
+spwdata spwarr[spwsize];
+int dat;
+double jdeopstart,mfme,dut1,lod,xp,yp,ddpsi,ddeps,dx,dy,x,y,s,deltapsi,deltaeps;
+double jdspwstart,f107a,f107,f107bar,ap,avgap,kp,sumkp,aparr[8],kparr[8];
+
+// Record for passing global data between Deriv and the calling program
+struct AuxParam {
+  double  Mjd_UTC;
+  double  Area_drag,Area_solar,mass,CR,CD;
+  int     n,m;
+  bool    Sun,Moon,SRad,Drag,SolidEarthTides,OceanTides,Relativity;
+};
+
+//------------------------------------------------------------------------------
+//
+// GJ4P class
+//
+//------------------------------------------------------------------------------
+
+// Function prototype for second order differential equations
+// void f (double t, const Vector& r, const Vector& v, Vector& a)
+
+typedef void (*GJ4Pfunct)(
+  double        t,     // Independent variable
+  const Vector& r,     // Position vector
+  const Vector& v,     // Velocity vector  r'=v
+  Vector&       a,     // Acceleration     r''=a=f(t,r,v)
+  void*         pAux   // Pointer to auxiliary data used within f
+);
+
+
+// Specification
+
+class GJ4P
+{
+  public:
+
+    // Constructor
+    GJ4P (
+      GJ4Pfunct   f_,        // Differential equation
+      int         n_eqn_,    // Dimension
+      void*       pAux_      // Pointer to auxiliary data
+      )
+    : n_eqn(n_eqn_), f(f_), pAux(pAux_)
+    {};
+    
+    // Initialization step
+    void Init (
+      double        t_0,     // Initial value of independent variable
+      const Vector& r_0,     // Initial value r_0=r(t_0)
+      const Vector& v_0,     // Initial value v_0=dr/dt(t_0)
+      double        h_       // Step size
+    );
+
+    // Integration step
+    void Step (         
+      double&  t,            // Independent variable; updated by t+h
+      Vector&  r,            // Value of r(t); updated by r(t+h)
+      Vector&  v             // Value of v(t)=dr/dt(t); updated by v(t+h)
+    );
+
+  private:
+
+    // 4th order Runge-Kutta step
+    void RK4 (         
+      double&  t,            // Independent variable; updated by t+h
+      Vector&  r,            // Value of r(t); updated by r(t+h)
+      Vector&  v,            // Value of v(t)=dr/dt(t); updated by v(t+h)
+      double   h             // Step size
+    );
+
+    // Elements
+    int         n_eqn;       // Dimension
+    GJ4Pfunct   f;           // Differential equation
+    double      h;           // Step size
+    void*       pAux;        // Pointer to auxiliary data requird by f
+    Vector      S2,S1;       // First and second sum of acceleration
+    Vector      D[4];        // Backward differences of acceleration at t
+    Vector      d[4];        // Backward differences of acceleration at t+h
+    Vector      r_p,v_p;     // Predictor
+
+};
+
+
+//
+// 4th order Runge-Kutta step for 2nd order differential equation
+//
+
+void GJ4P::RK4 (double&  t, Vector&  r, Vector&  v, double h )
+{
+  Vector v_1, v_2, v_3, v_4;
+  Vector a_1, a_2, a_3, a_4;
+
+  v_1 = v;              f( t      , r            , v_1, a_1, pAux ); 
+  v_2 = v+(h/2.0)*a_1;  f( t+h/2.0, r+(h/2.0)*v_1, v_2, a_2, pAux );
+  v_3 = v+(h/2.0)*a_2;  f( t+h/2.0, r+(h/2.0)*v_2, v_3, a_3, pAux ); 
+  v_4 = v+h*a_3;        f( t+h    , r+h*v_3      , v_4, a_4, pAux );
+  
+  t = t + h;
+  r = r + (h/6.0)*( v_1 + 2.0*v_2 + 2.0*v_3 + v_4 );
+  v = v + (h/6.0)*( a_1 + 2.0*a_2 + 2.0*a_3 + a_4 );
+
+};
+
+
+//
+// Initialization of backwards differences from initial conditions
+//
+
+void GJ4P::Init(double t_0, const Vector& r_0, const Vector& v_0, double h_)
+{
+  // Order of method
+  
+  const int m = 4;
+
+  // Coefficients gamma/delta of 1st/2nd order Moulton/Cowell corrector method
+
+  const double gc[m+1] = {+1.0, -1/2.0, -1/12.0, -1/24.0, -19/720.0 };
+  const double dc[m+2] = {+1.0,   -1.0, +1/12.0,     0.0,  -1/240.0, -1/240.0 };
+
+  int       i,j;
+  double    t = t_0;
+  Vector    r = r_0;
+  Vector    v = v_0;
+
+  // Save step size  
+
+  h = h_;     
+
+  // Create table of accelerations at past times t-3h, t-2h, and t-h using
+  // RK4 steps
+
+  f(t,r,v,D[0],pAux);     // D[i]=a(t-ih)
+  for (i=1;i<=m-1;i++) {
+    RK4(t,r,v,-h);  f(t,r,v,D[i],pAux);   
+  };
+
+  // Compute backwards differences
+  
+  for (i=1;i<=m-1;i++) 
+    for (j=m-1;j>=i;j--) D[j] = D[j-1]-D[j];
+
+  // Initialize backwards sums using 4th order GJ corrector
+
+  S1 = v_0/h;              for (i=1;i<=m  ;i++) S1 -= gc[i]*D[i-1];
+  S2 = r_0/(h*h)-dc[1]*S1; for (i=2;i<=m+1;i++) S2 -= dc[i]*D[i-2];
+
+};
+
+
+//
+// Step from t to t+h
+//
+
+void GJ4P::Step (double& t, Vector& r, Vector& v) 
+{
+  // Order of method
+  
+  const int m = 4;  
+
+  // Coefficients gamma/delta of 1st/2nd order Bashforth/Stoermr predictor
+  
+  const double gp[m+1] = {+1.0, +1/2.0, +5/12.0,  +3/8.0, +251/720.0 };
+  const double dp[m+2] = {+1.0,    0.0, +1/12.0, +1/12.0,  +19/240.0,  +3/40.0 };
+
+  int i;
+  
+  // 4th order predictor
+
+  r_p = dp[0]*S2; for(i=2;i<=m+1;i++) r_p += dp[i]*D[i-2]; r_p = (h*h)*r_p;
+  v_p = gp[0]*S1; for(i=1;i<=m  ;i++) v_p += gp[i]*D[i-1]; v_p =     h*v_p;
+
+  // Update backwards difference table
+
+  f ( t+h, r_p,v_p, d[0], pAux );               // Acceleration at t+h
+  for (i=1;i<=m-1;i++) d[i]=d[i-1]-D[i-1];      // New differences at t+h
+  for (i=0;i<=m-1;i++) D[i]=d[i];               // Update differences 
+  S1 += d[0];  S2 += S1;                        // Update sums
+
+  // Update independent variable and solution
+
+  t = t + h;
+  r = r_p;
+  v = v_p;
+
+};
+
+//------------------------------------------------------------------------------
+//
+// Accel
+//
+// Purpose:
+//
+//   Computes the acceleration of an Earth orbiting satellite due to
+//    - the Earth's harmonic gravity field,
+//    - the gravitational perturbations of the Sun and Moon
+//    - the solar radiation pressure and
+//    - the atmospheric drag
+//
+// Input/Output:
+//
+//   Mjd_UTC     Modified Julian Date (UTC)
+//   r           Satellite position vector in the ICRF/EME2000 system
+//   v           Satellite velocity vector in the ICRF/EME2000 system
+//   Area_drag   Cross-section
+//   Area_solar  Cross-section
+//   mass        Spacecraft mass
+//   CR          Radiation pressure coefficient
+//   CD          Drag coefficient
+//   n           Maximum degree
+//   m           Maximum order (m_max<=n_max; m_max=0 for zonals, only)
+//   <return>    Acceleration (a=d^2r/dt^2) in the ICRF/EME2000 system
+//
+//------------------------------------------------------------------------------
+Vector Accel(double Mjd_UTC, const Vector& r, const Vector& v, double Area_drag,
+             double Area_solar,double mass, double CR, double CD, int n, int m,
+             bool FlagSun, bool FlagMoon, bool FlagSRad, bool FlagDrag, bool
+             FlagSolidEarthTides, bool FlagOceanTides, bool FlagRelativity)
+{
+  double Mjd_UT1, Mjd_TT, jd, mfme;
+  double T1;     // Julian cent. since J2000
+  Vector a(3), r_Sun(3), r_Moon(3);
+  Matrix P(3,3),N(3,3), T(3,3), E(3,3);
+  char interp = 'l';
+
+  jd = Mjd_UTC + 2400000.5;
+  mfme = 1440.0*(Mjd_UTC - floor(Mjd_UTC));
+  findeopparam(jd, mfme, interp, eoparr, jdeopstart, dut1, dat, lod, xp, yp,
+               ddpsi, ddeps, dx, dy, x, y, s, deltapsi, deltaeps);
+  IERS::Set(dut1, -dat, xp, yp);
+  Mjd_UT1 = Mjd_UTC + IERS::UT1_UTC(Mjd_UTC)/86400.0;
+  Mjd_TT = Mjd_UTC + IERS::TT_UTC(Mjd_UTC)/86400.0;
+
+  P = PrecMatrix(MJD_J2000,Mjd_TT);
+  N = NutMatrix(Mjd_TT);
+  T = N*P;
+  E = PoleMatrix(Mjd_UTC) * GHAMatrix(Mjd_UT1,Mjd_TT) * T;
+
+  T1   = (Mjd_TT-MJD_J2000)/36525.0;
+  r_Sun  = AU*Transp(EclMatrix(Mjd_TT)*P)*SunPos(T1);
+  r_Moon = Transp(EclMatrix(Mjd_TT)*P)*MoonPos(T1);
+
+  // Acceleration due to harmonic gravity field
+  if (FlagSolidEarthTides || FlagOceanTides){
+  a = AccelHarmonic_AnelasticEarth(Mjd_UTC, r, r_Sun, r_Moon, E, GM_ref, R_ref, cnm, snm,
+                                   n, m, xp, yp, FlagSolidEarthTides, FlagOceanTides);
+  }else{ a = AccelHarmonic(r, E, GM_ref, R_ref, cnm, snm, n, m); }
+
+  // Luni-solar perturbations
+  if (FlagSun)  a += AccelPointMass(r, r_Sun,  GM_Sun );
+  if (FlagMoon) a += AccelPointMass(r, r_Moon, GM_Moon);
+
+  // Solar radiation pressure
+  if (FlagSRad) a += AccelSolrad(r, r_Sun, Area_solar, mass, CR, P_Sol, AU);
+
+  // Atmospheric drag
+  if (FlagDrag) a += AccelDrag(Mjd_UTC, r, v, T, E, Area_drag, mass, CD);
+
+  // Relativistic Effects
+  if (FlagRelativity) a += Relativity(r,v);
+
+  // Acceleration
+  return a;
+}
+
+//------------------------------------------------------------------------------
+//
+// Deriv
+//
+// Purpose:
+//
+//   Computes the derivative of the state vector
+//
+// Note:
+//
+//   pAux is expected to point to a variable of type AuxDataRecord, which is
+//   used to communicate with the other program sections and to hold data
+//   between subsequent calls of this function
+//
+//------------------------------------------------------------------------------
+void Deriv(double t, const Vector& r, const Vector& v, Vector& a, void* pAux)
+{
+  // Pointer to auxiliary data record
+  AuxParam* p = static_cast<AuxParam*>(pAux);
+
+  // Time
+  double  Mjd_UTC = (*p).Mjd_UTC + t/86400.0;
+
+  // Acceleration
+  a = Accel(Mjd_UTC,r,v, (*p).Area_drag, (*p).Area_solar, (*p).mass, (*p).CR, (*p).CD,
+            (*p).n, (*p).m, (*p).Sun, (*p).Moon, (*p).SRad, (*p).Drag, (*p).SolidEarthTides,
+            (*p).OceanTides, (*p).Relativity);
+
+};
+
+//------------------------------------------------------------------------------
+//
+// Ephemeris computation
+//
+//------------------------------------------------------------------------------
+void Ephemeris(const Vector& Y0, int N_Step, double Step, AuxParam p, Vector Eph[])
+{
+  int       i;
+  double    t,t_end;
+  GJ4P    Orbit(Deriv,3,&p);             // Object for integrating the
+                                         // 2nd order diff. equation
+                                         // defined by Deriv using the
+                                         // 4th-order GJ predictor
+  // Initial values
+  t = 0.0;
+  // State vector components
+  Vector r = Y0.slice(0,2);
+  Vector v = Y0.slice(3,5);
+  Eph[0] = Stack(r,v);
+
+  // Integration from t=t to t=t_end
+  Orbit.Init(t, r, v, Step);
+  for (int i=1; i<=N_Step; i++){
+    Orbit.Step(t, r, v);
+    Eph[i] = Stack(r,v);
+  };
+}
+
+//------------------------------------------------------------------------------
+//
+// Main program
+//
+//------------------------------------------------------------------------------
+int main() {
+
+  cout<<"\n      High Precision Orbit Propagator     \n"<<endl;
+  cout<<"      Developed by Meysam Mahooti (2024-12-05)     \n"<<endl;
+
+  clock_t start, end;
+  start = clock();
+
+  // Variables
+  double    Mjd_UTC;
+  Vector    Y0(6),Y(6);
+  Vector    Kep(6);
+  AuxParam  Aux;     // Auxiliary parameters
+
+  ifstream inp;
+  inp.open("GGM03C.txt");// this code opens file to read gravitational coefficients
+  int z=0, n=360;
+  double temp;
+  int Year, Month, Day, Hour, Min;
+  double Sec;
+
+   do
+  {
+       for(int x=0;x<=z;x++)
+      {
+       inp >> temp;
+       inp >> temp;
+       inp >> temp;
+       cnm(z,x) = temp;
+       inp >> temp;
+       snm(z,x) = temp;
+       inp >> temp;
+       inp >> temp;
+      }  z++;
+  } while(z<=n);
+  inp.close();
+
+  initeop(eoparr,jdeopstart);
+  initspw(spwarr,jdspwstart);
+
+  // Initial state vector (Envisat)
+  FILE *f1;
+  f1 = fopen("InitialState.txt", "r");
+  fscanf(f1,"%d/%d/%d-%d:%d:%lf\n", &Year, &Month, &Day, &Hour, &Min, &Sec);
+  for(int j=0;j<6;j++)
+  {
+   fscanf(f1,"%lf\n", &Y0(j));
+  }
+  fclose(f1);
+
+  // Epoch
+  Mjd_UTC = Mjd(Year, Month, Day, Hour, Min, Sec);
+
+  Y0 = ECEF2ECI(Mjd_UTC, Y0);
+  
+  // Model parameters
+  Aux.Mjd_UTC = Mjd_UTC;
+  Aux.Area_drag  = 55.64;  // [m^2]
+  Aux.Area_solar = 88.4;   // [m^2]
+  Aux.mass       = 8000.0; // [kg]
+  Aux.CR         = 1.0;
+  Aux.CD         = 2.7;
+  Aux.n          = 70;
+  Aux.m          = 70;
+  Aux.Sun        = true;
+  Aux.Moon       = true;
+  Aux.SRad       = true;
+  Aux.Drag       = true;
+  Aux.SolidEarthTides = true;
+  Aux.OceanTides = true;
+  Aux.Relativity = true;
+
+  // Initial values
+  double Step = 10.0; // [s]
+  const int N_Step = 1588*6; // number of integration steps (26.47 hours)
+  Vector Eph [N_Step+1];
+
+  Ephemeris(Y0, N_Step, Step, Aux, Eph);
+
+  FILE *f2, *f3;
+
+  if ((f2 = fopen("SatelliteStates_J2000.txt", "w+")) == NULL)
+ {
+   fprintf(stdin,"Can't open \"words\" file.\n");
+   exit(1);
+ }
+  if ((f3 = fopen("SatelliteStates_ECEF.txt", "w+")) == NULL)
+ {
+   fprintf(stdin,"Can't open \"words\" file.\n");
+   exit(1);
+ }
+  for (int i=0;i<=N_Step;i+=6)
+ {
+   Y = Eph[i];
+   CalDat((Mjd_UTC+(Step*i)/86400.0), Year, Month, Day, Hour, Min, Sec);
+
+   fprintf(f2,"%4d/%02d/%02d-",Year,Month,Day);
+   fprintf(f2,"%02d:%02d:%06.3f",Hour,Min,Sec);
+
+   fprintf(f3,"%4d/%02d/%02d-",Year,Month,Day);
+   fprintf(f3,"%02d:%02d:%06.3f",Hour,Min,Sec);
+
+    for(int j=0;j<3;j++)
+   {
+     fprintf(f2,"%15.3f",Y(j));
+   }
+    for(int j=3;j<6;j++)
+   {
+     fprintf(f2,"%18.6f",Y(j));
+   }
+   fprintf(f2,"\n");
+   Y = ECI2ECEF((Mjd_UTC+(Step*i)/86400.0), Y);
+       for(int j=0;j<3;j++)
+   {
+     fprintf(f3,"%15.3f",Y(j));
+   }
+    for(int j=3;j<6;j++)
+   {
+     fprintf(f3,"%18.6f",Y(j));
+   }
+   fprintf(f3,"\n");
+ };
+  fclose(f2);
+  fclose(f3);
+
+  end = clock();
+  printf("\n     elapsed time: %f seconds\n", (end - start) / CLK_TCK);
+  printf("\n     press any key \n");
+
+  //getch();
+  return 0;
+}
+
+
+
+
+

@@ -1,29 +1,32 @@
 import { execFile } from "child_process";
-import { existsSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import { HPOPEXEC_PATH } from "@/constants";
+import { WalkerAll_J2000_Ephemeris, HPOPEXEC_PATH, MODEL_DIRECTION_PATH } from "@/constants";
+import { GenCzmlHandler } from "@/utils/genCzml";
 
 export const POST = async (request: NextRequest) => {
   const json = await request.json();
   const params = json.params as string[];
 
-  console.log(existsSync(join(HPOPEXEC_PATH)), "2222222222");
-
   await new Promise((resolve, reject) => {
-    execFile(HPOPEXEC_PATH, ["Walker", ...params], (e) => {
-      console.log(e, "111111111");
-
+    execFile(HPOPEXEC_PATH, ["Walker", ...params], (e, stdout) => {
       if (e) {
-        NextResponse.json({ message: "执行失败", error: e });
-
-        return reject();
+        reject(e);
       } else {
-        NextResponse.json({ message: "执行成功" });
-        resolve(null);
+        resolve(stdout);
       }
     });
   });
+  const fileBuf = readFileSync(WalkerAll_J2000_Ephemeris);
+  const obj = JSON.parse(fileBuf.toString());
+  const czmlData = await GenCzmlHandler(obj);
+  // 生成随机文件名
+  // const filename = `custom_${Date.now()}.czml`;
+
+  // writeFileSync(join(MODEL_DIRECTION_PATH, filename), JSON.stringify(czmlData));
+
+  return NextResponse.json({ czmlData });
 };
