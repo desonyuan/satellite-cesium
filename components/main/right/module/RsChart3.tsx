@@ -5,7 +5,7 @@ import * as echarts from "echarts";
 import Box from "../../Box";
 
 const RsChart3: React.FC<any> = () => {
-  const chartRef = useRef(null);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let myChart = echarts.init(chartRef.current as unknown as HTMLDivElement);

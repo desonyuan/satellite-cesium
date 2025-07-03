@@ -52,7 +52,7 @@ const DataSourceList: FC<IProps> = () => {
 
   return (
     <Box title="卫星列表">
-      <ScrollShadow className="w-72 h-96">
+      <ScrollShadow className="w-72 h-60">
         <Listbox
           disallowEmptySelection
           aria-label="Multiple selection example"
