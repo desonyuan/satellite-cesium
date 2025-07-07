@@ -220,20 +220,14 @@ int main(int argc, char* argv[]) {
     exeDir = exeDir.substr(0, exeDir.find_last_of("\\/"));
 #endif
 
-    if (argc < 2) {
+    if (argc < 3) {
         std::cerr << "Usage: " << argv[0] << " <function> (e.g., orbit_cal or dop_cal)" << std::endl;
         return 1;
     }
 
-    string type = argv[1];
-
     cout<<"\n      High Precision Orbit Propagator     \n"<<endl;
     cout<<"      Developed by Meysam Mahooti (2024-12-05)     \n"<<endl;
 
-    clock_t start, end;
-    start = clock();
-
-    // Variables
     double    Mjd_UTC;
     Vector    Kep(6);
     AuxParam  Aux;
@@ -261,116 +255,275 @@ int main(int argc, char* argv[]) {
             snm(z,x) = temp;
             inp >> temp;
             inp >> temp;
-        }  
+        }
         z++;
     } while(z<=n);
     inp.close();
 
     initeop(eoparr,jdeopstart);
     initspw(spwarr,jdspwstart);
-    
-    Aux.Mjd_UTC = Mjd_UTC;
-    Aux.Area_drag  = 55.64;
-    Aux.Area_solar = 88.4;
-    Aux.mass       = 8000.0;
-    Aux.CR         = 1.0;
-    Aux.CD         = 2.7;
-    Aux.n          = 0;
-    Aux.m          = 0;
-    Aux.Sun        = false;
-    Aux.Moon       = false;
-    Aux.SRad       = false;
-    Aux.Drag       = false;
-    Aux.SolidEarthTides = false;
-    Aux.OceanTides = false;
-    Aux.Relativity = false;
 
-    double Step = 30.0;
-    const int N_Step = 2*60*24;
+    string moduel_name = argv[1];
+    if (moduel_name == "scene_edit"){
+        string type = argv[2];
 
-    // Input file paths - relative to executable
-    string initDir = exeDir + "/../sat_init_txt/";
-    string f1_path;
-    if (type == "BEIDOU"){
-        f1_path = initDir + "BEIDOU_J2000_InitState.txt";
-    }
-    else if(type == "GPS"){
-        f1_path = initDir + "GPS_J2000_InitState.txt";
-    }
-    else if(type == "GLONASS"){
-        f1_path = initDir + "GLONASS_J2000_InitState.txt";
-    }
-    else if(type == "Galileo"){
-        f1_path = initDir + "Galileo_J2000_InitState.txt";
-    }
-    else if(type == "Walker"){
-        if (argc < 11) {
-            std::cerr << "Error: Walker parameters are not enough\n";
+        // clock_t start, end;
+        // start = clock();
+
+        // Variables
+        Aux.Mjd_UTC = Mjd_UTC;
+        Aux.Area_drag  = 55.64;
+        Aux.Area_solar = 88.4;
+        Aux.mass       = 8000.0;
+        Aux.CR         = 1.0;
+        Aux.CD         = 2.7;
+        Aux.n          = 0;
+        Aux.m          = 0;
+        Aux.Sun        = false;
+        Aux.Moon       = false;
+        Aux.SRad       = false;
+        Aux.Drag       = false;
+        Aux.SolidEarthTides = false;
+        Aux.OceanTides = false;
+        Aux.Relativity = false;
+
+        double Step = 30.0;
+        // const int N_Step = 2*60*24;
+        const int N_Step = 2*30;
+
+        // Input file paths - relative to executable
+        string initDir = exeDir + "/../sat_init_txt/";
+        string f1_path;
+        if (type == "BEIDOU"){
+            f1_path = initDir + "BEIDOU_J2000_InitState.txt";
+        }
+        else if(type == "GPS"){
+            f1_path = initDir + "GPS_J2000_InitState.txt";
+        }
+        else if(type == "GLONASS"){
+            f1_path = initDir + "GLONASS_J2000_InitState.txt";
+        }
+        else if(type == "GALILEO"){
+            f1_path = initDir + "Galileo_J2000_InitState.txt";
+        }
+        else if(type == "Walker"){
+            if (argc < 11) {
+                std::cerr << "Error: Walker parameters are not enough\n";
+                return 1;
+            }
+            OrbitalElements seed;
+            seed.a = atof(argv[3]);
+            seed.e = atof(argv[4]);
+            seed.i = atof(argv[4]);
+            seed.Omega = atof(argv[6]);
+            seed.omega = atof(argv[7]);
+            seed.nu = atof(argv[8]);//真近点角
+
+            int T = atoi(argv[9]);
+            int S = atoi(argv[10]);
+            int F = atoi(argv[11]);
+
+            string walkerPath = initDir + "Walker_J2000_InitState.txt";
+            generateWalkerConstellationAndWriteRV(seed, T, S, F, walkerPath);
+            f1_path = walkerPath;
+        }
+
+        // Read initial state
+        FILE *f1 = fopen(f1_path.c_str(), "r");
+        if (!f1) {
+            cerr << "Error: Could not open initial state file at " << f1_path << endl;
             return 1;
         }
-        OrbitalElements seed;
-        seed.a = atof(argv[2]);
-        seed.e = atof(argv[3]);
-        seed.i = atof(argv[4]);
-        seed.Omega = atof(argv[5]);
-        seed.omega = atof(argv[6]);
-        seed.M0 = atof(argv[7]);
-    
-        int T = atoi(argv[8]);
-        int S = atoi(argv[9]);
-        int F = atoi(argv[10]);
-    
-        string walkerPath = initDir + "Walker_J2000_InitState.txt";
-        generateWalkerConstellationAndWriteRV(seed, T, S, F, walkerPath);
-        f1_path = walkerPath;
-    }
 
-    // Read initial state
-    FILE *f1 = fopen(f1_path.c_str(), "r");
-    if (!f1) {
-        cerr << "Error: Could not open initial state file at " << f1_path << endl;
-        return 1;
-    }
+        fscanf(f1,"%d/%d/%d-%d:%d:%lf\n", &Year, &Month, &Day, &Hour, &Min, &Sec);
+        // fscanf(f1,"%d %d %d %d:%d:%lf\n", &Day, &Month, &Year, &Hour, &Min, &Sec);
+        Mjd_UTC = Mjd(Year, Month, Day, Hour, Min, Sec);
+        ostringstream epoch_block;
+        epoch_block << " \"epoch\": \"" << Year << "-" << setfill('0') << setw(2) << Month
+                    << "-" << setw(2) << Day << " " << setw(2) << Hour << ":"
+                    << setw(2) << Min << ":" << fixed << setprecision(0) << Sec << "Z\",\n";
 
-    fscanf(f1,"%d/%d/%d-%d:%d:%lf\n", &Year, &Month, &Day, &Hour, &Min, &Sec);
-    Mjd_UTC = Mjd(Year, Month, Day, Hour, Min, Sec);
-    ostringstream epoch_block;
-    epoch_block << " \"epoch\": \"" << Year << "-" << setfill('0') << setw(2) << Month
-                << "-" << setw(2) << Day << " " << setw(2) << Hour << ":"
-                << setw(2) << Min << ":" << fixed << setprecision(0) << Sec << "Z\",\n";
+        char satelliteIdBuffer[100];
+        string satelliteId;
+        Vector Eph [N_Step+1];
 
-    char satelliteIdBuffer[100];
-    string satelliteId;
-    Vector Eph [N_Step+1];
-
-    // Output JSON file
-    string jsonPath = exeDir + "/" + type + "All_J2000_Ephemeris.json";
-    ofstream jsonOut(jsonPath.c_str());
-    if (!jsonOut.is_open()) {
-        cerr << "Error: Could not create JSON output file at " << jsonPath << endl;
-        return 1;
-    }
-
-    jsonOut << "{\n";
-    bool firstSat = true;
-
-    int num_sats = 0;
-    while (fscanf(f1, "%99s", satelliteIdBuffer) == 1) {
-        num_sats = num_sats + 1;
-        satelliteId = satelliteIdBuffer;
-    
-        Vector Y0(6),Y(6);
-        for(int j=0;j<6;j++) {
-            fscanf(f1,"%lf\n", &Y0(j));
+        // Output JSON file
+        string jsonPath = exeDir + "/" + type + "All_J2000_Ephemeris.json";
+        ofstream jsonOut(jsonPath.c_str());
+        if (!jsonOut.is_open()) {
+            cerr << "Error: Could not create JSON output file at " << jsonPath << endl;
+            return 1;
         }
-        
-        Y0 = Y0 * 1000;
+
+        jsonOut << "{\n";
+        bool firstSat = true;
+
+        int num_sats = 0;
+        while (fscanf(f1, "%99s", satelliteIdBuffer) == 1) {
+            num_sats = num_sats + 1;
+            satelliteId = satelliteIdBuffer;
+
+            Vector Y0(6),Y(6);
+            for(int j=0;j<6;j++) {
+                fscanf(f1,"%lf\n", &Y0(j));
+            }
+
+            Y0 = Y0 * 1000;
+            Ephemeris(Y0, N_Step, Step, Aux, Eph);
+
+            if (!firstSat) jsonOut << ",\n";
+            firstSat = false;
+
+            jsonOut << "  \"" << satelliteId << "\": {\n";
+            jsonOut << epoch_block.str();
+            jsonOut << "    \"cartesian\": [\n";
+
+            for (int i = 0; i <= N_Step; i += 1) {
+                Vector Y = Eph[i];
+                int t_sec = i * Step;
+                jsonOut << "      [" << t_sec << ", " << fixed << setprecision(8)
+                        << Y(0) << ", " << Y(1) << ", " << Y(2) << ", " << Y(3) << ", " << Y(4) << ", " << Y(5) << "]";
+                if (i != N_Step) jsonOut << ",";
+                jsonOut << "\n";
+            }
+            jsonOut << "    ]\n  }";
+
+            // Create output subdirectory
+            string ecefDir = exeDir + "/" + type + "_ecef";
+    #ifdef _WIN32
+            CreateDirectoryA(ecefDir.c_str(), NULL);
+    #else
+            mkdir(ecefDir.c_str(), 0777);
+    #endif
+
+            // Output ECEF file
+            string ecefFilePath = ecefDir + "/" + satelliteId + "_ECEF.txt";
+            FILE *f3 = fopen(ecefFilePath.c_str(), "w+");
+            if (!f3) {
+                cerr << "Error: Could not create ECEF output file at " << ecefFilePath << endl;
+                continue;
+            }
+
+            for (int i = 0; i <= N_Step; i += 1) {
+                Vector Y = Eph[i];
+                CalDat((Mjd_UTC + (Step * i) / 86400.0), Year, Month, Day, Hour, Min, Sec);
+
+                fprintf(f3,"%4d-%02d-%02d ",Year,Month,Day);
+                fprintf(f3,"%02d:%02d:%06.3f\t",Hour,Min,Sec);
+
+                Y = ECI2ECEF((Mjd_UTC+(Step*i)/86400.0), Y);
+                for(int j = 0; j < 3; j++) {
+                    fprintf(f3,"%20.6f\t",Y(j));
+                }
+                for(int j = 3; j < 6; j++) {
+                    fprintf(f3,"%20.6f\t",Y(j));
+                }
+                fprintf(f3,"\n");
+            }
+            fclose(f3);
+        }
+        fclose(f1);
+        jsonOut << "\n}\n";
+        jsonOut.close();
+
+        printf("\n  All J2000 ephemerides saved as JSON.\n");
+        // end = clock();
+        // printf("\n     elapsed time: %f seconds\n", (end - start) / CLK_TCK);
+
+        // DOP calculation
+        string ecefDir = exeDir + "/" + type + "_ecef";
+        auto sat_positions = LoadAllSatellites(num_sats, N_Step, ecefDir + "/");
+
+        double lat_start = -90.0, lat_end = 90.0, lat_step = 10.0;
+        double lon_start = -180.0, lon_end = 180.0, lon_step = 10.0;
+        double alt_km = 0.0;
+
+        const int NUM_Step = 2;
+
+        ComputeGridPDOP(sat_positions, NUM_Step,
+            lat_start, lat_end, lat_step,
+            lon_start, lon_end, lon_step,
+            type, alt_km);
+    }
+
+    else if (moduel_name == "Perturbation_force") {
+        if (argc < 16) {
+            cerr << "Usage: " << argv[0]
+                << " Perturbation_force YYYY MM DD HH mm SS a e i Omega omega nu n m Area_drag mass CD CR Area_solar"
+                << endl;
+            return 1;
+        }
+
+        // ===== 1. 读取时间参数 =====
+        int Year = atoi(argv[2]);
+        int Month = atoi(argv[3]);
+        int Day = atoi(argv[4]);
+        int Hour = atoi(argv[5]);
+        int Min = atoi(argv[6]);
+        double Sec = atof(argv[7]);
+        Mjd_UTC = Mjd(Year, Month, Day, Hour, Min, Sec);
+        Aux.Mjd_UTC = Mjd_UTC;
+
+        // ===== 2. 读取轨道六要素 =====
+        OrbitalElements orbit;
+        orbit.a = atof(argv[8]);     // km
+        orbit.e = atof(argv[9]);
+        orbit.i = atof(argv[10]);    // deg
+        orbit.Omega = atof(argv[11]); // deg
+        orbit.omega = atof(argv[12]); // deg
+        orbit.nu = atof(argv[13]);    // deg 真近点角
+
+        std::array<double, 6> rv = orbitalElementsToRV(orbit);
+
+        Vector Y0(6),Y(6);
+        for (int j = 0; j < 6; ++j) {
+            Y0(j) = rv[j] * 1000.0;  // km → m, km/s → m/s
+        }
+
+        // ===== 3. 读取摄动力相关参数 =====
+        Aux.n = atoi(argv[14]);
+        Aux.m = atoi(argv[15]);
+        Aux.Area_drag = atof(argv[16]);    // 单位 m²
+        Aux.mass = atof(argv[17]);         // 单位 kg
+        Aux.CD = atof(argv[18]);
+        Aux.CR = atof(argv[19]);
+        Aux.Area_solar = atof(argv[20]);
+
+        // ===== 4. 设置摄动力开关 =====
+        Aux.Sun        = false;
+        Aux.Moon       = false;
+        Aux.SRad       = true;
+        Aux.Drag       = true;
+        Aux.SolidEarthTides = false;
+        Aux.OceanTides = false;
+        Aux.Relativity = false;
+
+        // ===== 5. 可进行摄动力判断/轨道外推后续逻辑 =====
+        double Step = 30.0;
+        const int N_Step = 2;
+        // const int N_Step = 2*60*24;
+        ostringstream epoch_block;
+        epoch_block << " \"epoch\": \"" << Year << "-" << setfill('0') << setw(2) << Month
+                    << "-" << setw(2) << Day << " " << setw(2) << Hour << ":"
+                    << setw(2) << Min << ":" << fixed << setprecision(0) << Sec << "Z\",\n";
+        Vector Eph [N_Step+1];
+
+        // Output JSON file
+        string jsonPath = exeDir + "/" + "Perturbation_force" + "All_J2000_Ephemeris.json";
+        ofstream jsonOut(jsonPath.c_str());
+        if (!jsonOut.is_open()) {
+            cerr << "Error: Could not create JSON output file at " << jsonPath << endl;
+            return 1;
+        }
+
+        jsonOut << "{\n";
+        bool firstSat = true;
+
         Ephemeris(Y0, N_Step, Step, Aux, Eph);
 
         if (!firstSat) jsonOut << ",\n";
         firstSat = false;
 
-        jsonOut << "  \"" << satelliteId << "\": {\n";
         jsonOut << epoch_block.str();
         jsonOut << "    \"cartesian\": [\n";
 
@@ -383,62 +536,11 @@ int main(int argc, char* argv[]) {
             jsonOut << "\n";
         }
         jsonOut << "    ]\n  }";
-        
-        // Create output subdirectory
-        string ecefDir = exeDir + "/" + type + "_ecef";
-#ifdef _WIN32
-        CreateDirectoryA(ecefDir.c_str(), NULL);
-#else
-        mkdir(ecefDir.c_str(), 0777);
-#endif
+        jsonOut << "\n}\n";
+        jsonOut.close();
 
-        // Output ECEF file
-        string ecefFilePath = ecefDir + "/" + satelliteId + "_ECEF.txt";
-        FILE *f3 = fopen(ecefFilePath.c_str(), "w+");
-        if (!f3) {
-            cerr << "Error: Could not create ECEF output file at " << ecefFilePath << endl;
-            continue;
-        }
-    
-        for (int i = 0; i <= N_Step; i += 1) {
-            Vector Y = Eph[i];
-            CalDat((Mjd_UTC + (Step * i) / 86400.0), Year, Month, Day, Hour, Min, Sec);
-    
-            fprintf(f3,"%4d-%02d-%02d ",Year,Month,Day);
-            fprintf(f3,"%02d:%02d:%06.3f\t",Hour,Min,Sec);
-            
-            Y = ECI2ECEF((Mjd_UTC+(Step*i)/86400.0), Y);
-            for(int j = 0; j < 3; j++) {
-                fprintf(f3,"%20.6f\t",Y(j));
-            }
-            for(int j = 3; j < 6; j++) {
-                fprintf(f3,"%20.6f\t",Y(j));
-            }
-            fprintf(f3,"\n");
-        }
-        fclose(f3);
+        printf("\n  All J2000 ephemerides saved as JSON.\n");
     }
-    fclose(f1);
-    jsonOut << "\n}\n";
-    jsonOut.close();
-
-    printf("\n  All J2000 ephemerides saved as JSON.\n");
-    end = clock();
-    printf("\n     elapsed time: %f seconds\n", (end - start) / CLK_TCK);
-
-    // DOP calculation
-    string ecefDir = exeDir + "/" + type + "_ecef";
-    auto sat_positions = LoadAllSatellites(num_sats, N_Step, ecefDir + "/");
-
-    double lat_start = -90.0, lat_end = 90.0, lat_step = 10.0;
-    double lon_start = -180.0, lon_end = 180.0, lon_step = 10.0;
-    double alt_km = 0.0;
-
-    ComputeGridPDOP(sat_positions, N_Step,
-        lat_start, lat_end, lat_step,
-        lon_start, lon_end, lon_step,
-        type, alt_km);
-
     printf("\n     press any key \n");
     return 0;
 }

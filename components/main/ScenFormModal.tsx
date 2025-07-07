@@ -4,9 +4,6 @@ import {
   CardHeader,
   CardBody,
   Input,
-  Select,
-  SelectItem,
-  Slider,
   DateRangePicker,
   Switch,
   Button,
@@ -20,10 +17,11 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { CzmlDataSource } from "cesium";
-import { FC, PropsWithChildren, useRef, useState } from "react";
+import { FC, PropsWithChildren, useMemo, useRef, useState } from "react";
 import { useBoolean, useRequest, useSetState, useUpdateEffect } from "ahooks";
 
 import CustomScenForm from "./CustomScenForm";
+import CustomForce from "./CustomForce";
 
 import {
   addScene,
@@ -77,11 +75,16 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
       },
     } as any);
   };
+  const selectRadio = useMemo(() => {
+    return satelliteList[0];
+  }, [satelliteList]);
 
   const loadCustomSatellite = async (data: Record<string, any>) => {
-    viewer.dataSources.removeAll(true);
     try {
       const ds = await loadCzmlObject(data);
+
+      viewer.dataSources.removeAll(true);
+
       viewer.dataSources.add(ds);
       setCurDataSource(ds);
     } catch (error) {}
@@ -94,6 +97,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
         for (let index = 0; index < satelliteList.length; index++) {
           const filename = satelliteList[index];
           const ds = await loadCzml(filename);
+
           viewer.dataSources.add(ds);
           setCurDataSource(ds);
         }
@@ -101,17 +105,22 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
     }
     // 加载轨迹
     const files = trackFiles.current;
+
     if (files) {
       const tasks: Promise<any>[] = [];
+
       for (let index = 0; index < files.length; index++) {
         const task = new Promise((resolve, reject) => {
           const file = files[index];
           const reader = new FileReader();
+
           reader.onload = function (e) {
             const content = reader.result;
+
             if (content) {
               const blob = new Blob([content], { type: "application/json" });
               const url = URL.createObjectURL(blob);
+
               CzmlDataSource.load(url).then((ds) => {
                 viewer.dataSources.add(ds);
                 resolve(true);
@@ -120,6 +129,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
           };
           reader.readAsText(file);
         });
+
         tasks.push(task);
       }
       await Promise.all(tasks);
@@ -129,14 +139,16 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
   const onSubmit = async () => {
     if (!sceneName) {
       setErrors({ sceneName: "场景名称不能为空" });
+
       return;
     }
     setLoading.setTrue();
-    const selectSatellite = satelliteList[0];
-    if (selectSatellite !== "自定义星座可视化") {
+
+    if (selectRadio !== "自定义星座可视化" && selectRadio !== "摄动力") {
       try {
         await loadSatellite();
         const data = { sceneName, setting: formValues, satelliteList };
+
         addScene(data);
         setCurScene(sceneName);
         toggleEditFormModal();
@@ -151,12 +163,13 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
   const { runAsync: getModels } = useRequest(
     async () => {
       const res = await fetch("/api/model/list");
+
       return res.json();
     },
     {
       manual: true,
       onSuccess(json) {
-        setFileList([...json.files, "自定义星座可视化"]);
+        setFileList([...json.files, "自定义星座可视化", "摄动力"]);
       },
     },
   );
@@ -248,6 +261,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
                         visibleMonths={2}
                         onChange={(values) => {
                           const date: { start?: Date; end?: Date } = {};
+
                           if (values?.start) {
                             date.start = values.start.toDate("Asia/Shanghai");
                           }
@@ -286,10 +300,13 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
                 <h4 className="my-5 font-bold text-primary text-2xl">星座可视化</h4>
                 <div className="flex flex-col gap-y-7 px-5">
                   <RadioGroup
+                    classNames={{
+                      wrapper: "grid grid-cols-3",
+                    }}
                     orientation="horizontal"
                     value={satelliteList[0]}
                     onValueChange={(val) => {
-                      if (val === "自定义星座可视化") {
+                      if (val === "自定义星座可视化" || val === "摄动力") {
                         onOpen();
                       }
                       setSatelliteList([val]);
@@ -298,11 +315,11 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
                     {fileList.map((filename) => (
                       <Radio
                         key={filename}
-                        value={filename}
                         classNames={{
                           base: "text-xl", // 控制整体文本样式
                           label: "text-xl", // 特别控制标签文本样式
                         }}
+                        value={filename}
                       >
                         {filename.replace(".czml", "")} {/* 去掉.czml后缀 */}
                       </Radio>
@@ -324,16 +341,34 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
             </div>
           </CardFooter>
         </Card>
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <Modal isOpen={isOpen} size={selectRadio !== "自定义星座可视化" ? "4xl" : "xl"} onOpenChange={onOpenChange}>
           <ModalContent>
-            {(onClose) => (
-              <CustomScenForm
-                loadCustomSatellite={async (data: Record<string, any>) => {
-                  await loadCustomSatellite(data);
-                }}
-                onClose={onClose}
-              />
-            )}
+            {(onClose) => {
+              const close = () => {
+                setSatelliteList([]);
+                onClose();
+              };
+
+              if (selectRadio === "自定义星座可视化") {
+                return (
+                  <CustomScenForm
+                    loadCustomSatellite={async (data: Record<string, any>) => {
+                      await loadCustomSatellite(data);
+                    }}
+                    onClose={close}
+                  />
+                );
+              } else {
+                return (
+                  <CustomForce
+                    loadCustomSatellite={async (data: Record<string, any>) => {
+                      await loadCustomSatellite(data);
+                    }}
+                    onClose={close}
+                  />
+                );
+              }
+            }}
           </ModalContent>
         </Modal>
       </div>

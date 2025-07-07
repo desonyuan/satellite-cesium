@@ -1,10 +1,9 @@
 import { execFile } from "child_process";
-import { readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "fs";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import { WalkerAll_J2000_Ephemeris, HPOPEXEC_PATH, MODEL_DIRECTION_PATH } from "@/constants";
+import { HPOPEXEC_PATH, WalkerAll_J2000_Ephemeris } from "@/constants";
 import { GenCzmlHandler } from "@/utils/genCzml";
 
 export const POST = async (request: NextRequest) => {
@@ -12,7 +11,7 @@ export const POST = async (request: NextRequest) => {
   const params = json.params as string[];
 
   await new Promise((resolve, reject) => {
-    execFile(HPOPEXEC_PATH, ["Walker", ...params], (e, stdout) => {
+    execFile(HPOPEXEC_PATH, [json.type, ...params], (e: any, stdout: any) => {
       if (e) {
         reject(e);
       } else {

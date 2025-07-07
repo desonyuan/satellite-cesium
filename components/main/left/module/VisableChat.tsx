@@ -22,8 +22,6 @@ const VisableChat: FC<PropsWithChildren<IProps>> = () => {
         .then((text) => {
           const satelliteData = parseSatelliteData(text);
 
-          console.log(satelliteData, "1111111111");
-
           chart.setOption(createGanttChart(satelliteData));
           window.addEventListener("resize", () => chart.resize());
         });
