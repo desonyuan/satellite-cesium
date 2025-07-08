@@ -9,26 +9,6 @@ import { LoadSceneConfig } from "../tool/scene";
 
 import { CESIUM_TOKEN } from "@/config/cesium";
 
-function getQuaternionFromTo(fromPosition, toPosition) {
-  const direction = Cesium.Cartesian3.subtract(toPosition, fromPosition, new Cesium.Cartesian3());
-
-  Cesium.Cartesian3.normalize(direction, direction);
-
-  const up = Cesium.Cartesian3.normalize(fromPosition, new Cesium.Cartesian3()); // 当前位置法向量
-  const right = Cesium.Cartesian3.cross(direction, up, new Cesium.Cartesian3());
-
-  Cesium.Cartesian3.normalize(right, right);
-  const correctedUp = Cesium.Cartesian3.cross(right, direction, new Cesium.Cartesian3());
-
-  const rotationMatrix = new Cesium.Matrix3();
-
-  Cesium.Matrix3.setColumn(rotationMatrix, 0, right, rotationMatrix); // X 轴
-  Cesium.Matrix3.setColumn(rotationMatrix, 1, correctedUp, rotationMatrix); // Y 轴
-  Cesium.Matrix3.setColumn(rotationMatrix, 2, direction, rotationMatrix); // Z 轴（锥体默认方向）
-
-  return Cesium.Quaternion.fromRotationMatrix(rotationMatrix);
-}
-
 type ContentType = {
   viewer: Cesium.Viewer;
   containerSize: { width: number; height: number };
