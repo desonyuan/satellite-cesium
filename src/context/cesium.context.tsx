@@ -49,35 +49,36 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
   });
 
   const addConeEntity = useCallback((viewer: Cesium.Viewer, satelliteEntity: Cesium.Entity) => {
+    const position = new Cesium.CallbackProperty((time) => {
+      const satellitePosition = satelliteEntity.position?.getValue(time);
+
+      if (!satellitePosition) return satellitePosition;
+
+      // 1. 方向向量：卫星 → 地心
+      const toCenter = Cesium.Cartesian3.negate(satellitePosition, new Cesium.Cartesian3());
+
+      Cesium.Cartesian3.normalize(toCenter, toCenter);
+
+      // 2. 计算卫星高度
+      const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(satellitePosition);
+      const height = cartographic.height;
+
+      // 3. cylinder length = height * 2，偏移量 = length / 2 = height
+      const offset = Cesium.Cartesian3.multiplyByScalar(toCenter, height, new Cesium.Cartesian3());
+
+      // 4. 计算中心点
+      const coneCenter = Cesium.Cartesian3.add(satellitePosition, offset, new Cesium.Cartesian3());
+
+      return coneCenter;
+    }, false);
+
     // 添加锥体
     coneEntity = viewer.entities.add({
-      position: new Cesium.CallbackProperty(() => {
-        const time = viewer.clock.currentTime;
-        const satellitePosition = satelliteEntity.position.getValue(time);
-
-        if (!satellitePosition) return satellitePosition;
-
-        // 1. 方向向量：卫星 → 地心
-        const toCenter = Cesium.Cartesian3.negate(satellitePosition, new Cesium.Cartesian3());
-
-        Cesium.Cartesian3.normalize(toCenter, toCenter);
-
-        // 2. 计算卫星高度
-        const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(satellitePosition);
-        const height = cartographic.height;
-
-        // 3. cylinder length = height * 2，偏移量 = length / 2 = height
-        const offset = Cesium.Cartesian3.multiplyByScalar(toCenter, height, new Cesium.Cartesian3());
-
-        // 4. 计算中心点
-        const coneCenter = Cesium.Cartesian3.add(satellitePosition, offset, new Cesium.Cartesian3());
-
-        return coneCenter;
-      }, false),
+      position: position as any as Cesium.Cartesian3,
       cylinder: {
         length: new Cesium.CallbackProperty(() => {
           const time = viewer.clock.currentTime;
-          const satellitePosition = satelliteEntity.position.getValue(time);
+          const satellitePosition = satelliteEntity.position?.getValue(time);
 
           if (!satellitePosition) return 1000000;
 
@@ -87,7 +88,7 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
         }, false),
         topRadius: new Cesium.CallbackProperty(() => {
           const time = viewer.clock.currentTime;
-          const satellitePosition = satelliteEntity.position.getValue(time);
+          const satellitePosition = satelliteEntity.position?.getValue(time);
 
           if (!satellitePosition) return 200000;
 
