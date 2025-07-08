@@ -1,21 +1,45 @@
 "use client";
-import { Ion, Viewer } from "cesium";
-import { FC, PropsWithChildren, createContext, useContext, useEffect, useRef, useState } from "react";
+import * as Cesium from "cesium";
+import { FC, PropsWithChildren, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+
+const { Entity, Ion, Viewer } = Cesium;
 
 import { useAppStore } from "../store/app.store";
 import { LoadSceneConfig } from "../tool/scene";
 
 import { CESIUM_TOKEN } from "@/config/cesium";
 
+function getQuaternionFromTo(fromPosition, toPosition) {
+  const direction = Cesium.Cartesian3.subtract(toPosition, fromPosition, new Cesium.Cartesian3());
+
+  Cesium.Cartesian3.normalize(direction, direction);
+
+  const up = Cesium.Cartesian3.normalize(fromPosition, new Cesium.Cartesian3()); // 当前位置法向量
+  const right = Cesium.Cartesian3.cross(direction, up, new Cesium.Cartesian3());
+
+  Cesium.Cartesian3.normalize(right, right);
+  const correctedUp = Cesium.Cartesian3.cross(right, direction, new Cesium.Cartesian3());
+
+  const rotationMatrix = new Cesium.Matrix3();
+
+  Cesium.Matrix3.setColumn(rotationMatrix, 0, right, rotationMatrix); // X 轴
+  Cesium.Matrix3.setColumn(rotationMatrix, 1, correctedUp, rotationMatrix); // Y 轴
+  Cesium.Matrix3.setColumn(rotationMatrix, 2, direction, rotationMatrix); // Z 轴（锥体默认方向）
+
+  return Cesium.Quaternion.fromRotationMatrix(rotationMatrix);
+}
+
 type ContentType = {
-  viewer: Viewer;
+  viewer: Cesium.Viewer;
   containerSize: { width: number; height: number };
 };
 
 const Context = createContext<ContentType>(undefined as any as ContentType);
+let coneEntity: Cesium.Entity | undefined;
 
 const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
-  const [viewer, setViewer] = useState<Viewer>(undefined as any as Viewer);
+  const [_viewer, setViewer] = useState<Cesium.Viewer>(undefined as any as Cesium.Viewer);
+  const [currentSatelliteEntity, setCurrentSatelliteEntity] = useState<Cesium.Entity | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
   const { situationMode, scenes } = useAppStore();
 
@@ -24,11 +48,74 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
     height: 0,
   });
 
+  const addConeEntity = useCallback((viewer: Cesium.Viewer, satelliteEntity: Cesium.Entity) => {
+    // 添加锥体
+    coneEntity = viewer.entities.add({
+      position: new Cesium.CallbackProperty((time) => {
+        const satellitePosition = satelliteEntity.position?.getValue(time);
+
+        if (!satellitePosition) return satellitePosition;
+
+        if (!satellitePosition) return satellitePosition;
+
+        // 1. 计算方向：卫星 → 地心
+        const toCenter = Cesium.Cartesian3.negate(satellitePosition, new Cesium.Cartesian3());
+
+        Cesium.Cartesian3.normalize(toCenter, toCenter);
+
+        // 2. 计算锥体中心：从卫星沿方向偏移 length/2
+        const offset = Cesium.Cartesian3.multiplyByScalar(toCenter, 500000, new Cesium.Cartesian3()); // 1000000 / 2
+        const coneCenter = Cesium.Cartesian3.add(satellitePosition, offset, new Cesium.Cartesian3());
+
+        return coneCenter;
+      }, false),
+      cylinder: {
+        length: 1000000,
+        topRadius: 200000,
+        bottomRadius: 0,
+        material: Cesium.Color.WHITE.withAlpha(0.4),
+      },
+      orientation: new Cesium.CallbackProperty((time) => {
+        const position = satelliteEntity.position?.getValue(time);
+
+        if (!position) return Cesium.Quaternion.IDENTITY;
+
+        // 1. 卫星指向地心方向
+        const toCenter = Cesium.Cartesian3.negate(position, new Cesium.Cartesian3());
+
+        Cesium.Cartesian3.normalize(toCenter, toCenter);
+
+        // 2. cylinder 的默认方向：正 Z 轴
+        const defaultDirection = new Cesium.Cartesian3(0, 0, 1);
+
+        // 3. 计算旋转轴 & 角度
+        const axis = Cesium.Cartesian3.cross(defaultDirection, toCenter, new Cesium.Cartesian3());
+        const axisMagnitude = Cesium.Cartesian3.magnitude(axis);
+
+        if (axisMagnitude === 0) {
+          // 如果方向相同或相反，直接处理
+          if (Cesium.Cartesian3.dot(defaultDirection, toCenter) < 0) {
+            // 方向相反，旋转180度
+            return Cesium.Quaternion.fromAxisAngle(Cesium.Cartesian3.UNIT_X, Math.PI);
+          }
+
+          return Cesium.Quaternion.IDENTITY;
+        }
+        Cesium.Cartesian3.normalize(axis, axis);
+        const angle = Cesium.Cartesian3.angleBetween(defaultDirection, toCenter);
+
+        // 4. 生成四元数
+        return Cesium.Quaternion.fromAxisAngle(axis, angle);
+      }, false),
+      show: true,
+    });
+  }, []);
+
   useEffect(() => {
     window.CESIUM_BASE_URL = "/cesium";
     Ion.defaultAccessToken = CESIUM_TOKEN;
     const container = containerRef.current as HTMLDivElement;
-    const v = new Viewer(container, {
+    const viewer = new Viewer(container, {
       geocoder: false,
       navigationHelpButton: false,
       baseLayerPicker: true,
@@ -42,11 +129,11 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
       },
     });
 
-    v.clock.multiplier = 60;
-    v.clock.shouldAnimate = true;
-    (v.cesiumWidget.creditContainer as HTMLElement).style.display = "none"; /* 隐藏cesium logo */
-    setViewer(v);
-    LoadSceneConfig(v, scenes[0].setting);
+    viewer.clock.multiplier = 60;
+    viewer.clock.shouldAnimate = true;
+    (viewer.cesiumWidget.creditContainer as HTMLElement).style.display = "none"; /* 隐藏cesium logo */
+    setViewer(viewer);
+    LoadSceneConfig(viewer, scenes[0].setting);
 
     setHeatMapStyle({ width: container.offsetWidth, height: container.offsetHeight });
 
@@ -62,13 +149,49 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
 
     resizeObserver.observe(container);
 
+    viewer.selectedEntityChanged.addEventListener((entity: Cesium.Entity) => {
+      if (entity) {
+        //点击的是卫星
+        if (entity.id.startsWith("Satellite")) {
+          setCurrentSatelliteEntity(entity);
+        } else if (entity.name) {
+        }
+      } else {
+        setCurrentSatelliteEntity(undefined);
+      }
+    });
+    // handler.setInputAction(function (click: { position: any }) {
+    //   var pick = viewer.scene.pick(click.position);
+
+    //   if (pick && pick.id) {
+    //     const entity = pick.id as Entity;
+
+    //     //点击的是卫星
+    //     if (entity.name?.startsWith("Satellite")) {
+    //     } else if (entity.name) {
+    //     }
+    //     console.log(entity, "1111111111");
+    //   }
+    // }, ScreenSpaceEventType.LEFT_CLICK);
+
     return () => {
-      v.destroy();
+      viewer.destroy();
     };
   }, []);
 
+  useEffect(() => {
+    if (_viewer) {
+      if (coneEntity) {
+        _viewer.entities.remove(coneEntity);
+      }
+      if (currentSatelliteEntity) {
+        addConeEntity(_viewer, currentSatelliteEntity);
+      }
+    }
+  }, [currentSatelliteEntity, _viewer]);
+
   return (
-    <Context.Provider value={{ viewer, containerSize: heatMapStyle }}>
+    <Context.Provider value={{ viewer: _viewer, containerSize: heatMapStyle }}>
       <section ref={containerRef} className="h-screen" id="container" />
       {situationMode === "simulation" && (
         <div className="absolute! -z-10! opacity-0! top-0 left-0" id="heatmap" style={heatMapStyle} />

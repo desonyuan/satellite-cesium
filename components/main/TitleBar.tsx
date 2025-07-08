@@ -141,67 +141,73 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
   }, [situationMode, viewer, containerSize]);
 
   return (
-    <div className="header-container w-full absolute flex justify-between top-0 left-0 px-10 z-10">
-      <DateBox />
-      <div className="absolute left-1/2 -translate-x-1/2 py-3 font-bold text-4xl">
-        <div className="app-name">卫星服务模拟分系统</div>
+    <div className="header-container w-full absolute top-0 left-0 px-10 z-10">
+      <div className="flex justify-between">
+        <DateBox />
+        <div className="absolute left-1/2 -translate-x-1/2 py-3 font-bold text-4xl">
+          <div className="app-name">卫星服务模拟分系统</div>
+        </div>
       </div>
-      <div className="flex items-center justify-end gap-x-4 mt-[50px] grow">
-        <div className="flex items-center gap-x-2">
-          <SceneSelect />
+      <div className="flex items-center justify-between mt-1 w-full">
+        <div className="flex w-1/2 shrink-0 items-center gap-x-2 justify-end pr-[20%]">
+          <div>
+            <SceneSelect />
+          </div>
           <Button color="primary" variant="bordered" onPress={toggleEditFormModal}>
             添加场景
           </Button>
         </div>
-        <Button
-          className={cn(
-            "bg-gradient-to-tr text-white shadow-lg",
-            situationMode === "constellation" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
-          )}
-          color="primary"
-          size="md"
-          onPress={() => {
-            setsituationMode("constellation");
-          }}
-        >
-          星座运行态势
-        </Button>
+        <div className="w-1/2 shrink-0 flex gap-x-4 items-center pl-[20%]">
+          <Button
+            className={cn(
+              "bg-gradient-to-tr text-white shadow-lg",
+              situationMode === "constellation" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
+            )}
+            color="primary"
+            size="md"
+            onPress={() => {
+              setsituationMode("constellation");
+            }}
+          >
+            星座运行态势
+          </Button>
 
-        <Button
-          color="primary"
-          size="md"
-          onPress={() => {
-            setsituationMode("starlink");
-          }}
-          className={cn(
-            "bg-gradient-to-tr text-white shadow-lg",
-            situationMode === "starlink" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
-          )}
-          // onClick={() => {
-          //   setSituation({
-          //     satellite: false,
-          //     communicate: false,
-          //     basestation: true,
-          //     resource: false,
-          //     business: false,
-          //   });
-          // }}
-        >
-          星间链路态势
-        </Button>
-        <Button
-          className={cn(
-            "bg-gradient-to-tr text-white shadow-lg",
-            situationMode === "simulation" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
-          )}
-          color="primary"
-          size="md"
-          onPress={() => {
-            setsituationMode("simulation");
-          }}
-        >
-          态势仿真
-        </Button>
+          <Button
+            color="primary"
+            size="md"
+            onPress={() => {
+              setsituationMode("starlink");
+            }}
+            className={cn(
+              "bg-gradient-to-tr text-white shadow-lg",
+              situationMode === "starlink" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
+            )}
+            // onClick={() => {
+            //   setSituation({
+            //     satellite: false,
+            //     communicate: false,
+            //     basestation: true,
+            //     resource: false,
+            //     business: false,
+            //   });
+            // }}
+          >
+            星间链路态势
+          </Button>
+          <Button
+            className={cn(
+              "bg-gradient-to-tr text-white shadow-lg",
+              situationMode === "simulation" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
+            )}
+            color="primary"
+            size="md"
+            onPress={() => {
+              setsituationMode("simulation");
+            }}
+          >
+            态势仿真
+          </Button>
+        </div>
         <div />
       </div>
     </div>

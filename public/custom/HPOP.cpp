@@ -48,6 +48,9 @@
 
 using namespace std;
 
+const double DEG2RAD = M_PI / 180.0;
+const double mu = 398600.4418; // 地球引力常数 km^3/s^2（WGS-84）
+
 //------------------------------------------------------------------------------
 //
 // Global types and data
@@ -146,6 +149,63 @@ Vector Accel(double Mjd_UTC, const Vector& r, const Vector& v, double Area_drag,
 
   // Acceleration
   return a;
+}
+
+
+// 解开普勒方程：平均近点角 → 真近点角（弧度）
+double meanToTrueAnomaly(double M, double e) {
+    double E = M;
+    for (int i = 0; i < 100; ++i) {
+        double f = E - e * std::sin(E) - M;
+        double fp = 1 - e * std::cos(E);
+        double dE = -f / fp;
+        E += dE;
+        if (std::abs(dE) < 1e-8) break;
+    }
+    return 2 * std::atan2(std::sqrt(1 + e) * std::sin(E / 2),
+                          std::sqrt(1 - e) * std::cos(E / 2));
+}
+
+
+// 将轨道六要素转换为状态矢量（位置 + 速度，单位：km 和 km/s）
+std::array<double, 6> orbitalElementsToRV(const OrbitalElements& elem) {
+    double a = elem.a, e = elem.e;
+    double i = elem.i * DEG2RAD;
+    double Omega = elem.Omega * DEG2RAD;
+    double omega = elem.omega * DEG2RAD;
+    double M0 = elem.M0 * DEG2RAD;
+
+    double nu = meanToTrueAnomaly(M0, e);
+    double p = a * (1 - e * e);
+    double r = p / (1 + e * std::cos(nu));
+
+    // 在轨道平面坐标系下的坐标和速度
+    double x_p = r * std::cos(nu);
+    double y_p = r * std::sin(nu);
+    double vx_p = -std::sqrt(mu / p) * std::sin(nu);
+    double vy_p = std::sqrt(mu / p) * (e + std::cos(nu));
+
+    // 旋转矩阵（三次绕 z-x-z）
+    double cosO = std::cos(Omega), sinO = std::sin(Omega);
+    double cosi = std::cos(i), sini = std::sin(i);
+    double cosw = std::cos(omega), sinw = std::sin(omega);
+
+    double R11 = cosO * cosw - sinO * sinw * cosi;
+    double R12 = -cosO * sinw - sinO * cosw * cosi;
+    double R21 = sinO * cosw + cosO * sinw * cosi;
+    double R22 = -sinO * sinw + cosO * cosw * cosi;
+    double R31 = sinw * sini;
+    double R32 = cosw * sini;
+
+    std::array<double, 6> rv;
+    rv[0] = R11 * x_p + R12 * y_p;
+    rv[1] = R21 * x_p + R22 * y_p;
+    rv[2] = R31 * x_p + R32 * y_p;
+    rv[3] = R11 * vx_p + R12 * vy_p;
+    rv[4] = R21 * vx_p + R22 * vy_p;
+    rv[5] = R31 * vx_p + R32 * vy_p;
+
+    return rv;
 }
 
 //------------------------------------------------------------------------------
