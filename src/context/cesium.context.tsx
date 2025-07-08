@@ -56,8 +56,7 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
     coneEntity = viewer.entities.add({
       position: position as any as Cesium.Cartesian3,
       cylinder: {
-        length: new Cesium.CallbackProperty(() => {
-          const time = viewer.clock.currentTime;
+        length: new Cesium.CallbackProperty((time) => {
           const satellitePosition = satelliteEntity.position?.getValue(time);
 
           if (!satellitePosition) return 1000000;
@@ -66,8 +65,7 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
 
           return cartographic.height * 2;
         }, false),
-        topRadius: new Cesium.CallbackProperty(() => {
-          const time = viewer.clock.currentTime;
+        topRadius: new Cesium.CallbackProperty((time) => {
           const satellitePosition = satelliteEntity.position?.getValue(time);
 
           if (!satellitePosition) return 200000;
