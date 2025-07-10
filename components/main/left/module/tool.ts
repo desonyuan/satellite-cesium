@@ -85,13 +85,15 @@ export const createGanttChart = (satelliteData: any[]) => {
   satelliteData.sort(naturalCompare);
 
   satelliteData.forEach((sat: any) => {
-    yAxisData.push(sat.name);
+    const name = sat.name.replace("Satellite", "Sat");
+
+    yAxisData.push(name);
     sat.intervals.forEach((interval: any) => {
       seriesData.push({
-        name: sat.name,
-        value: [sat.name, interval.start, interval.stop, interval.duration.toFixed(2) + "h"],
+        name,
+        value: [name, interval.start, interval.stop, interval.duration.toFixed(2) + "h"],
         itemStyle: {
-          color: getColorByDuration(interval.duration),
+          color: interval.duration < 12 ? "#00ffff" : "#ff66cc",
         },
       });
     });
