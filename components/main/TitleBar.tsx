@@ -1,9 +1,10 @@
 import { Button } from "@heroui/button";
-import { cn } from "@heroui/react";
+import { Checkbox, cn } from "@heroui/react";
 import { FC, PropsWithChildren, useEffect, useRef } from "react";
 import { CzmlDataSource, Entity, ImageMaterialProperty, Rectangle } from "cesium";
 import Papa from "papaparse";
 import h337 from "heatmap.js";
+import { useBoolean } from "ahooks";
 
 import SceneSelect from "./SceneSelect";
 import DateBox from "./DateBox";
@@ -27,14 +28,13 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
   const timeData = useRef<Record<string, any>>({});
   // 场景列表数据
   const { situationMode } = useAppStore();
+  const [showHeatmap, setShowHeatmap] = useBoolean();
 
   useEffect(() => {
     if (viewer) {
       if (ds.current) {
         viewer.dataSources.remove(ds.current, true);
       }
-
-      console.log(hotEntity, "0000000000000");
 
       if (hotEntity) {
         viewer.entities.remove(hotEntity);
@@ -58,6 +58,7 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
           // 仿真态势
           if (hotEntity) {
             viewer.entities.add(hotEntity);
+            setShowHeatmap.setTrue();
           } else {
             fetch("/files/BEIDOU_pdop_grid_all.csv").then((res) => {
               res.text().then((text) => {
@@ -119,7 +120,7 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
                         }),
                       },
                     });
-
+                    setShowHeatmap.setTrue();
                     // 将地图聚焦到热力图区域
                     // viewer.zoomTo(viewer.entities);
 
@@ -157,20 +158,38 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
             添加场景
           </Button>
         </div>
-        <div className="w-1/2 shrink-0 flex gap-x-4 items-center pl-[20%]">
-          <Button
-            className={cn(
-              "bg-gradient-to-tr text-white shadow-lg",
-              situationMode === "constellation" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
-            )}
-            color="primary"
-            size="md"
-            onPress={() => {
-              setsituationMode("constellation");
-            }}
-          >
-            星座运行态势
-          </Button>
+        <div className="w-1/2 shrink-0 flex gap-x-4 items-center pl-[20%] relative">
+          <div className="relative">
+            <Button
+              className={cn(
+                "bg-gradient-to-tr text-white shadow-lg",
+                situationMode === "constellation" ? "from-blue-600 to-blue-600" : "from-blue-950 to-blue-900",
+              )}
+              color="primary"
+              size="md"
+              onPress={() => {
+                setsituationMode("constellation");
+              }}
+            >
+              星座运行态势
+            </Button>
+            {situationMode === "simulation" ? (
+              <div className="absolute left-[20%] top-20">
+                <Checkbox
+                  classNames={{ label: "text-white text-sm text-nowrap" }}
+                  isSelected={showHeatmap}
+                  onValueChange={(checked) => {
+                    if (hotEntity) {
+                      checked ? viewer.entities.add(hotEntity) : viewer.entities.remove(hotEntity);
+                      setShowHeatmap.set(checked);
+                    }
+                  }}
+                >
+                  显示热力图
+                </Checkbox>
+              </div>
+            ) : null}
+          </div>
 
           <Button
             color="primary"
@@ -208,7 +227,6 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
             态势仿真
           </Button>
         </div>
-        <div />
       </div>
     </div>
   );

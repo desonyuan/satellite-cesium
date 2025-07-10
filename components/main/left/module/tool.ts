@@ -55,7 +55,7 @@ function naturalCompare(a: Record<string, any>, b: Record<string, any>) {
 }
 
 function getColorByDuration(duration: number) {
-  const colors = ["#00ffff", "#ffff00", "#ff66cc", "#00ff66", "#ff9933", "#66ccff"];
+  const colors = ["#00ffff", "#ffff00", "#ff66cc"];
 
   return colors[Math.floor(Math.random() * colors.length)];
 }
@@ -119,10 +119,10 @@ export const createGanttChart = (satelliteData: any[]) => {
       },
     },
     grid: {
-      left: "10%",
+      left: "15%",
       right: "5%",
-      bottom: "8%",
-      top: "5%",
+      bottom: "15%",
+      top: "0%",
     },
     xAxis: {
       type: "time",
@@ -132,6 +132,7 @@ export const createGanttChart = (satelliteData: any[]) => {
       axisLabel: {
         color: "#ddd",
         fontSize: 10,
+        rotate: 30,
         formatter: function (value: string) {
           const date = new Date(value);
 
@@ -167,14 +168,27 @@ export const createGanttChart = (satelliteData: any[]) => {
     ],
     dataZoom: [
       {
-        type: "inside",
-        yAxisIndex: 0,
+        type: "slider",
+        xAxisIndex: [0],
         start: 0,
         end: 30,
+        right: 0,
+        height: 10,
+        backgroundColor: "rgba(0, 0, 50, 0.3)", // 滑动条背景
+        dataBackground: {
+          lineStyle: { color: "rgba(0, 120, 255, 0.6)" },
+          areaStyle: { color: "rgba(0, 120, 255, 0.3)" },
+        },
+        fillerColor: "rgba(0, 200, 255, 0.3)", // 选中区域颜色
+        borderColor: "rgba(0, 200, 255, 0.5)", // 边框
+        handleStyle: {
+          color: "rgba(0, 200, 255, 0.9)",
+          borderColor: "#00f0ff",
+        },
       },
       {
         type: "slider",
-        yAxisIndex: 0,
+        yAxisIndex: [0],
         start: 0,
         end: 30,
         right: 0,
@@ -190,6 +204,18 @@ export const createGanttChart = (satelliteData: any[]) => {
           color: "rgba(0, 200, 255, 0.9)",
           borderColor: "#00f0ff",
         },
+      },
+      {
+        type: "inside",
+        yAxisIndex: 0,
+        start: 0,
+        end: 30,
+      },
+      {
+        type: "inside",
+        xAxisIndex: 0,
+        start: 0,
+        end: 30,
       },
     ],
   };

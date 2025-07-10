@@ -2,13 +2,12 @@
 import * as echarts from "echarts";
 import { FC, PropsWithChildren, useEffect, useRef } from "react";
 
-import Box from "../../Box";
-
-import { createGanttChart, parseSatelliteData } from "./tool";
+import Box from "../Box";
+import { createGanttChart, parseSatelliteData } from "../left/module/tool";
 
 interface IProps {}
 
-const VisableChat: FC<PropsWithChildren<IProps>> = () => {
+const VisableTimeChat: FC<PropsWithChildren<IProps>> = () => {
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,4 +34,4 @@ const VisableChat: FC<PropsWithChildren<IProps>> = () => {
   );
 };
 
-export default VisableChat;
+export default VisableTimeChat;
