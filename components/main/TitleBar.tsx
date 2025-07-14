@@ -39,6 +39,7 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
       if (hotEntity) {
         viewer.entities.remove(hotEntity);
       }
+
       if (situationMode === "starlink") {
         // 保存当前时间信息
         const clock = viewer.clock;
@@ -49,7 +50,7 @@ const TitleBar: FC<PropsWithChildren<IProps>> = () => {
           timeData.current[key] = val;
         }
 
-        loadCzml(undefined, "/datasource/simple.czml").then((data) => {
+        loadCzml(undefined, "/datasource/isl/Scenario1.czml").then((data) => {
           ds.current = data;
           viewer.dataSources.add(data);
         });

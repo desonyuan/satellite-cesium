@@ -1,4 +1,7 @@
 "use client";
+/*
+ * 场景编辑配置
+ */
 import {
   Card,
   CardHeader,
@@ -19,6 +22,7 @@ import {
 import { CzmlDataSource } from "cesium";
 import { FC, PropsWithChildren, useMemo, useRef, useState } from "react";
 import { useBoolean, useRequest, useSetState, useUpdateEffect } from "ahooks";
+import { parseAbsoluteToLocal } from "@internationalized/date";
 
 import CustomScenForm from "./CustomScenForm";
 import CustomForce from "./CustomForce";
@@ -34,7 +38,7 @@ import {
   useAppStore,
 } from "@/src/store/app.store";
 import { useCesium } from "@/src/context/cesium.context";
-import { loadCzml, loadCzmlObject } from "@/src/tool/czml";
+import { getCzmlTime, loadCzml, loadCzmlObject } from "@/src/tool/czml";
 import { LoadSceneConfig } from "@/src/tool/scene";
 
 const scaleType = [
@@ -53,6 +57,7 @@ const scaleType = [
 ];
 
 interface IProps {}
+let timer: NodeJS.Timeout;
 
 const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
   const { editFromModal } = useAppStore();
@@ -67,6 +72,8 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
   const [loading, setLoading] = useBoolean();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  const [disabledTimeRange, setDisabledTimeRange] = useBoolean(true);
+
   const setValue = (key: SettingKey, val: any, name: string) => {
     setFormValues({
       [key]: {
@@ -78,6 +85,19 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
   const selectRadio = useMemo(() => {
     return satelliteList[0];
   }, [satelliteList]);
+  // 加载czml时间
+  const loadCzmlTime = async (filename: string) => {
+    if (timer!) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(async () => {
+      setDisabledTimeRange.setTrue();
+      const { startTime, endTime } = await getCzmlTime(filename);
+
+      setValue("timeRange", { start: parseAbsoluteToLocal(startTime), end: parseAbsoluteToLocal(endTime) }, "时间段");
+      setDisabledTimeRange.setFalse();
+    }, 500);
+  };
 
   const loadCustomSatellite = async (data: Record<string, any>) => {
     try {
@@ -194,7 +214,7 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
           backgroundAttachment: "fixed",
         }}
       >
-        <Card className="w-[950px] p-5">
+        <Card className="w-[1250px] p-5">
           <CardHeader>
             <div className="grow text-center">
               <h1 className="font-bold text-3xl">场景编辑</h1>
@@ -258,6 +278,8 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
                     <div className="flex items-center gap-x-5">
                       <label className="shrink-0 w-28 text-xl">时间段:</label>
                       <DateRangePicker
+                        isDisabled={disabledTimeRange}
+                        value={formValues.timeRange.val}
                         visibleMonths={2}
                         onChange={(values) => {
                           const date: { start?: Date; end?: Date } = {};
@@ -307,7 +329,11 @@ const ScenFormModal: FC<PropsWithChildren<IProps>> = () => {
                     value={satelliteList[0]}
                     onValueChange={(val) => {
                       if (val === "自定义星座可视化" || val === "摄动力") {
+                        setValue("timeRange", { start: undefined, end: undefined }, "时间段");
+                        setDisabledTimeRange.setTrue();
                         onOpen();
+                      } else {
+                        loadCzmlTime(val);
                       }
                       setSatelliteList([val]);
                     }}

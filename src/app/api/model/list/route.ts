@@ -3,8 +3,10 @@ import { join } from "path";
 
 import { NextResponse } from "next/server";
 
+import { MODEL_DIRECTION_PATH } from "@/constants";
+
 export async function GET(request: Request) {
-  const dirs = readdirSync(join(process.cwd(), "public", "model"));
+  const dirs = readdirSync(join(MODEL_DIRECTION_PATH));
 
   return NextResponse.json({
     files: dirs.map((filename) => {

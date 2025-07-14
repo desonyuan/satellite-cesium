@@ -17,6 +17,8 @@
 }
 .app-name {
   position: relative;
+  letter-spacing: 10px;
+  font-style: italic;
 }
 .app-name::before {
   content: "";

@@ -25,6 +25,7 @@ export const GenCzmlHandler = async (obj: Record<string, any>) => {
 
     // 更新最大时间偏移量
     const lastOffset = satData.cartesian[satData.cartesian.length - 1][0];
+
     if (lastOffset > maxOffset) {
       maxOffset = lastOffset;
     }
@@ -62,6 +63,7 @@ export const GenCzmlHandler = async (obj: Record<string, any>) => {
     // 转换坐标数据
     for (const point of satData.cartesian) {
       const [t, x, y, z] = point;
+
       cartesian.push(t, x, y, z);
     }
 
@@ -110,7 +112,7 @@ export const GenCzmlHandler = async (obj: Record<string, any>) => {
           },
         },
         width: 2,
-        leadTime: 1e8,  // 显示完整未来轨道
+        leadTime: 1e8, // 显示完整未来轨道
         trailTime: 1e8, // 显示完整历史轨道
         resolution: 60,
       },
