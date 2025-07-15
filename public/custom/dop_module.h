@@ -14,7 +14,8 @@ std::vector<std::vector<Vector3d>> LoadAllSatellites(int num_sats, int num_steps
 
 // 计算 PDOP 网格热力图（每个时间步输出一个文件）
 void ComputeGridPDOP(const std::vector<std::vector<Vector3d>>& sat_positions,
-    int num_steps,
+    int num_steps, double time_step,
     double lat_start, double lat_end, double lat_step,
     double lon_start, double lon_end, double lon_step,
+    int year, int month, int day, int hour, int min, double sec,
     std::string type, double alt_km = 0.0);

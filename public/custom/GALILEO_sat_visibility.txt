@@ -1,0 +1,105 @@
+Satellite 1
+Start: 0
+Stop:  1
+
+Satellite 2
+  No access intervals.
+
+Satellite 3
+  No access intervals.
+
+Satellite 4
+Start: 0
+Stop:  1
+
+Satellite 5
+  No access intervals.
+
+Satellite 6
+Start: 0
+Stop:  1
+
+Satellite 7
+  No access intervals.
+
+Satellite 8
+Start: 0
+Stop:  1
+
+Satellite 9
+Start: 0
+Stop:  1
+
+Satellite 10
+  No access intervals.
+
+Satellite 11
+Start: 0
+Stop:  1
+
+Satellite 12
+Start: 0
+Stop:  1
+
+Satellite 13
+Start: 0
+Stop:  1
+
+Satellite 14
+Start: 0
+Stop:  1
+
+Satellite 15
+Start: 0
+Stop:  1
+
+Satellite 16
+  No access intervals.
+
+Satellite 17
+  No access intervals.
+
+Satellite 18
+  No access intervals.
+
+Satellite 19
+  No access intervals.
+
+Satellite 20
+  No access intervals.
+
+Satellite 21
+  No access intervals.
+
+Satellite 22
+Start: 0
+Stop:  1
+
+Satellite 23
+  No access intervals.
+
+Satellite 24
+  No access intervals.
+
+Satellite 25
+  No access intervals.
+
+Satellite 26
+Start: 0
+Stop:  1
+
+Satellite 27
+  No access intervals.
+
+Satellite 28
+  No access intervals.
+
+Satellite 29
+  No access intervals.
+
+Satellite 30
+  No access intervals.
+
+Satellite 31
+  No access intervals.
+

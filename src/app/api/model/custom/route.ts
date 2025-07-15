@@ -1,9 +1,10 @@
 import { execFile } from "child_process";
 import { readFileSync } from "fs";
+import { join } from "path";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import { HPOPEXEC_PATH, WalkerAll_J2000_Ephemeris } from "@/constants";
+import { HPOPEXEC_PATH, BUILD_DIR } from "@/constants";
 import { GenCzmlHandler } from "@/utils/genCzml";
 
 export const POST = async (request: NextRequest) => {
@@ -27,7 +28,7 @@ export const POST = async (request: NextRequest) => {
       }
     });
   });
-  const fileBuf = readFileSync(WalkerAll_J2000_Ephemeris);
+  const fileBuf = readFileSync(join(BUILD_DIR, `${json.type}All_J2000_Ephemeris.json`));
   const obj = JSON.parse(fileBuf.toString());
   const czmlData = await GenCzmlHandler(obj);
   // 生成随机文件名

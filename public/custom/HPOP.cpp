@@ -48,9 +48,6 @@
 
 using namespace std;
 
-const double DEG2RAD = M_PI / 180.0;
-const double mu = 398600.4418; // 地球引力常数 km^3/s^2（WGS-84）
-
 //------------------------------------------------------------------------------
 //
 // Global types and data
@@ -149,63 +146,6 @@ Vector Accel(double Mjd_UTC, const Vector& r, const Vector& v, double Area_drag,
 
   // Acceleration
   return a;
-}
-
-
-// 解开普勒方程：平均近点角 → 真近点角（弧度）
-double meanToTrueAnomaly(double M, double e) {
-    double E = M;
-    for (int i = 0; i < 100; ++i) {
-        double f = E - e * std::sin(E) - M;
-        double fp = 1 - e * std::cos(E);
-        double dE = -f / fp;
-        E += dE;
-        if (std::abs(dE) < 1e-8) break;
-    }
-    return 2 * std::atan2(std::sqrt(1 + e) * std::sin(E / 2),
-                          std::sqrt(1 - e) * std::cos(E / 2));
-}
-
-
-// 将轨道六要素转换为状态矢量（位置 + 速度，单位：km 和 km/s）
-std::array<double, 6> orbitalElementsToRV(const OrbitalElements& elem) {
-    double a = elem.a, e = elem.e;
-    double i = elem.i * DEG2RAD;
-    double Omega = elem.Omega * DEG2RAD;
-    double omega = elem.omega * DEG2RAD;
-    double M0 = elem.M0 * DEG2RAD;
-
-    double nu = meanToTrueAnomaly(M0, e);
-    double p = a * (1 - e * e);
-    double r = p / (1 + e * std::cos(nu));
-
-    // 在轨道平面坐标系下的坐标和速度
-    double x_p = r * std::cos(nu);
-    double y_p = r * std::sin(nu);
-    double vx_p = -std::sqrt(mu / p) * std::sin(nu);
-    double vy_p = std::sqrt(mu / p) * (e + std::cos(nu));
-
-    // 旋转矩阵（三次绕 z-x-z）
-    double cosO = std::cos(Omega), sinO = std::sin(Omega);
-    double cosi = std::cos(i), sini = std::sin(i);
-    double cosw = std::cos(omega), sinw = std::sin(omega);
-
-    double R11 = cosO * cosw - sinO * sinw * cosi;
-    double R12 = -cosO * sinw - sinO * cosw * cosi;
-    double R21 = sinO * cosw + cosO * sinw * cosi;
-    double R22 = -sinO * sinw + cosO * cosw * cosi;
-    double R31 = sinw * sini;
-    double R32 = cosw * sini;
-
-    std::array<double, 6> rv;
-    rv[0] = R11 * x_p + R12 * y_p;
-    rv[1] = R21 * x_p + R22 * y_p;
-    rv[2] = R31 * x_p + R32 * y_p;
-    rv[3] = R11 * vx_p + R12 * vy_p;
-    rv[4] = R21 * vx_p + R22 * vy_p;
-    rv[5] = R31 * vx_p + R32 * vy_p;
-
-    return rv;
 }
 
 //------------------------------------------------------------------------------
@@ -315,7 +255,7 @@ int main(int argc, char* argv[]) {
             snm(z,x) = temp;
             inp >> temp;
             inp >> temp;
-        }
+        }  
         z++;
     } while(z<=n);
     inp.close();
@@ -330,7 +270,7 @@ int main(int argc, char* argv[]) {
         // clock_t start, end;
         // start = clock();
 
-        // Variables
+        // Variables        
         Aux.Mjd_UTC = Mjd_UTC;
         Aux.Area_drag  = 55.64;
         Aux.Area_solar = 88.4;
@@ -347,15 +287,18 @@ int main(int argc, char* argv[]) {
         Aux.OceanTides = false;
         Aux.Relativity = false;
 
-        double Step = 30.0;
+        double Step = 60.0;
         // const int N_Step = 2*60*24;
-        const int N_Step = 2*30;
+        const int N_Step = 60;
 
         // Input file paths - relative to executable
         string initDir = exeDir + "/../sat_init_txt/";
         string f1_path;
         if (type == "BEIDOU"){
             f1_path = initDir + "BEIDOU_J2000_InitState.txt";
+        }
+        else if(type == "beidou3"){
+            f1_path = initDir + "beidou3_J2000_InitState.txt";
         }
         else if(type == "GPS"){
             f1_path = initDir + "GPS_J2000_InitState.txt";
@@ -378,11 +321,11 @@ int main(int argc, char* argv[]) {
             seed.Omega = atof(argv[6]);
             seed.omega = atof(argv[7]);
             seed.nu = atof(argv[8]);//真近点角
-
+        
             int T = atoi(argv[9]);
             int S = atoi(argv[10]);
             int F = atoi(argv[11]);
-
+        
             string walkerPath = initDir + "Walker_J2000_InitState.txt";
             generateWalkerConstellationAndWriteRV(seed, T, S, F, walkerPath);
             f1_path = walkerPath;
@@ -396,6 +339,12 @@ int main(int argc, char* argv[]) {
         }
 
         fscanf(f1,"%d/%d/%d-%d:%d:%lf\n", &Year, &Month, &Day, &Hour, &Min, &Sec);
+        int init_Year = Year;
+        int init_Month = Month;
+        int init_Day = Day;
+        int init_Hour = Hour;
+        int init_Min = Min;
+        double init_Sec = Sec;
         // fscanf(f1,"%d %d %d %d:%d:%lf\n", &Day, &Month, &Year, &Hour, &Min, &Sec);
         Mjd_UTC = Mjd(Year, Month, Day, Hour, Min, Sec);
         ostringstream epoch_block;
@@ -422,12 +371,12 @@ int main(int argc, char* argv[]) {
         while (fscanf(f1, "%99s", satelliteIdBuffer) == 1) {
             num_sats = num_sats + 1;
             satelliteId = satelliteIdBuffer;
-
+        
             Vector Y0(6),Y(6);
             for(int j=0;j<6;j++) {
                 fscanf(f1,"%lf\n", &Y0(j));
             }
-
+            
             Y0 = Y0 * 1000;
             Ephemeris(Y0, N_Step, Step, Aux, Eph);
 
@@ -447,7 +396,7 @@ int main(int argc, char* argv[]) {
                 jsonOut << "\n";
             }
             jsonOut << "    ]\n  }";
-
+            
             // Create output subdirectory
             string ecefDir = exeDir + "/" + type + "_ecef";
     #ifdef _WIN32
@@ -463,14 +412,14 @@ int main(int argc, char* argv[]) {
                 cerr << "Error: Could not create ECEF output file at " << ecefFilePath << endl;
                 continue;
             }
-
+        
             for (int i = 0; i <= N_Step; i += 1) {
                 Vector Y = Eph[i];
                 CalDat((Mjd_UTC + (Step * i) / 86400.0), Year, Month, Day, Hour, Min, Sec);
-
+        
                 fprintf(f3,"%4d-%02d-%02d ",Year,Month,Day);
                 fprintf(f3,"%02d:%02d:%06.3f\t",Hour,Min,Sec);
-
+                
                 Y = ECI2ECEF((Mjd_UTC+(Step*i)/86400.0), Y);
                 for(int j = 0; j < 3; j++) {
                     fprintf(f3,"%20.6f\t",Y(j));
@@ -494,18 +443,19 @@ int main(int argc, char* argv[]) {
         string ecefDir = exeDir + "/" + type + "_ecef";
         auto sat_positions = LoadAllSatellites(num_sats, N_Step, ecefDir + "/");
 
-        double lat_start = -90.0, lat_end = 90.0, lat_step = 10.0;
-        double lon_start = -180.0, lon_end = 180.0, lon_step = 10.0;
+        double lat_start = -90.0, lat_end = 90.0, lat_step = 1.0;
+        double lon_start = -180.0, lon_end = 180.0, lon_step = 1.0;
         double alt_km = 0.0;
 
-        const int NUM_Step = 2;
+        const int NUM_Step = 10;
 
-        ComputeGridPDOP(sat_positions, NUM_Step,
+        ComputeGridPDOP(sat_positions, NUM_Step, Step,
             lat_start, lat_end, lat_step,
             lon_start, lon_end, lon_step,
+            init_Year, init_Month, init_Day, init_Hour, init_Min, init_Sec,
             type, alt_km);
     }
-
+    
     else if (moduel_name == "Perturbation_force") {
         if (argc < 16) {
             cerr << "Usage: " << argv[0]
@@ -560,13 +510,15 @@ int main(int argc, char* argv[]) {
 
         // ===== 5. 可进行摄动力判断/轨道外推后续逻辑 =====
         double Step = 30.0;
-        const int N_Step = 2;
-        // const int N_Step = 2*60*24;
+        // const int N_Step = 2;
+        const int N_Step = 2*60*6;
         ostringstream epoch_block;
         epoch_block << " \"epoch\": \"" << Year << "-" << setfill('0') << setw(2) << Month
                     << "-" << setw(2) << Day << " " << setw(2) << Hour << ":"
                     << setw(2) << Min << ":" << fixed << setprecision(0) << Sec << "Z\",\n";
         Vector Eph [N_Step+1];
+
+        // cout<<"\n      parameter contained     \n"<<endl;
 
         // Output JSON file
         string jsonPath = exeDir + "/" + "Perturbation_force" + "All_J2000_Ephemeris.json";
@@ -600,7 +552,7 @@ int main(int argc, char* argv[]) {
         jsonOut.close();
 
         printf("\n  All J2000 ephemerides saved as JSON.\n");
-    }
+    }   
     printf("\n     press any key \n");
     return 0;
 }

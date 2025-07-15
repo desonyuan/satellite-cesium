@@ -1,0 +1,36 @@
+Satellite 1
+  No access intervals.
+
+Satellite 2
+  No access intervals.
+
+Satellite 3
+  No access intervals.
+
+Satellite 4
+  No access intervals.
+
+Satellite 5
+  No access intervals.
+
+Satellite 6
+  No access intervals.
+
+Satellite 7
+  No access intervals.
+
+Satellite 8
+  No access intervals.
+
+Satellite 9
+  No access intervals.
+
+Satellite 10
+  No access intervals.
+
+Satellite 11
+  No access intervals.
+
+Satellite 12
+  No access intervals.
+

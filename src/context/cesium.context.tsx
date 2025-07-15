@@ -30,24 +30,23 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
 
   const addConeEntity = useCallback((viewer: Cesium.Viewer, satelliteEntity: Cesium.Entity) => {
     const position = new Cesium.CallbackProperty((time) => {
-      const satellitePosition = satelliteEntity.position?.getValue(time);
+      const satPos = satelliteEntity.position?.getValue(time)!;
 
-      if (!satellitePosition) return satellitePosition;
+      if (!satPos) return;
 
-      // 1. 方向向量：卫星 → 地心
-      const toCenter = Cesium.Cartesian3.negate(satellitePosition, new Cesium.Cartesian3());
+      // 获取单位方向向量：卫星 -> 地心
+      const dir = Cesium.Cartesian3.normalize(
+        Cesium.Cartesian3.negate(satPos, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3(),
+      );
 
-      Cesium.Cartesian3.normalize(toCenter, toCenter);
+      // 获取卫星高度
+      const carto = Cesium.Cartographic.fromCartesian(satPos);
+      const height = carto.height || 0;
 
-      // 2. 计算卫星高度
-      const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(satellitePosition);
-      const height = cartographic.height;
-
-      // 3. cylinder length = height * 2，偏移量 = length / 2 = height
-      const offset = Cesium.Cartesian3.multiplyByScalar(toCenter, height, new Cesium.Cartesian3());
-
-      // 4. 计算中心点
-      const coneCenter = Cesium.Cartesian3.add(satellitePosition, offset, new Cesium.Cartesian3());
+      // 移动 position 到锥体中心点 = 卫星位置 - dir * (height / 2)
+      const offset = Cesium.Cartesian3.multiplyByScalar(dir, height / 2, new Cesium.Cartesian3());
+      const coneCenter = Cesium.Cartesian3.add(satPos, offset, new Cesium.Cartesian3());
 
       return coneCenter;
     }, false);
@@ -57,57 +56,53 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
       position: position as any as Cesium.Cartesian3,
       cylinder: {
         length: new Cesium.CallbackProperty((time) => {
-          const satellitePosition = satelliteEntity.position?.getValue(time);
+          const satellitePosition = satelliteEntity.position?.getValue(time)!;
 
-          if (!satellitePosition) return 1000000;
+          const carto = Cesium.Cartographic.fromCartesian(satellitePosition);
 
-          const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(satellitePosition);
-
-          return cartographic.height * 2;
+          return carto.height;
         }, false),
         topRadius: new Cesium.CallbackProperty((time) => {
-          const satellitePosition = satelliteEntity.position?.getValue(time);
+          const pos = satelliteEntity.position?.getValue(time);
+          const scaleFactor = 0.5; // 调整锥体的张角大小，可根据视觉体验微调
+          const EARTH_DIAMETER = 12742000 / 10; // 米（WGS84 最大直径）
 
-          if (!satellitePosition) return 200000;
+          if (!pos) return 0;
 
-          const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(satellitePosition);
+          const carto = Cesium.Cartographic.fromCartesian(pos);
+          const height = carto.height || 0;
+          const num = height * scaleFactor;
 
-          return cartographic.height * 0.2; // 顶部宽度占高度比例，可调
+          return Math.min(Math.max(num, 1000000), EARTH_DIAMETER);
         }, false),
         bottomRadius: 0,
-        material: Cesium.Color.WHITE.withAlpha(0.3),
+        material: Cesium.Color.WHITE.withAlpha(0.1),
       },
-      orientation: new Cesium.CallbackProperty((time) => {
-        const position = satelliteEntity.position?.getValue(time);
+      orientation: new Cesium.CallbackProperty(function (time) {
+        const satPos = satelliteEntity.position?.getValue(time);
 
-        if (!position) return Cesium.Quaternion.IDENTITY;
+        if (!satPos) return Cesium.Quaternion.IDENTITY;
 
-        // 1. 卫星指向地心方向
-        const toCenter = Cesium.Cartesian3.negate(position, new Cesium.Cartesian3());
+        // 向地心方向
+        const dir = Cesium.Cartesian3.negate(
+          Cesium.Cartesian3.normalize(satPos, new Cesium.Cartesian3()),
+          new Cesium.Cartesian3(),
+        );
 
-        Cesium.Cartesian3.normalize(toCenter, toCenter);
+        // 使用方向向量构造 orientation 四元数
+        const up = Cesium.Cartesian3.UNIT_Z; // 临时上方向
+        const right = Cesium.Cartesian3.cross(up, dir, new Cesium.Cartesian3());
 
-        // 2. cylinder 的默认方向：正 Z 轴
-        const defaultDirection = new Cesium.Cartesian3(0, 0, 1);
+        Cesium.Cartesian3.normalize(right, right);
+        const newUp = Cesium.Cartesian3.cross(dir, right, new Cesium.Cartesian3());
 
-        // 3. 计算旋转轴 & 角度
-        const axis = Cesium.Cartesian3.cross(defaultDirection, toCenter, new Cesium.Cartesian3());
-        const axisMagnitude = Cesium.Cartesian3.magnitude(axis);
+        const mat3 = new Cesium.Matrix3();
 
-        if (axisMagnitude === 0) {
-          // 如果方向相同或相反，直接处理
-          if (Cesium.Cartesian3.dot(defaultDirection, toCenter) < 0) {
-            // 方向相反，旋转180度
-            return Cesium.Quaternion.fromAxisAngle(Cesium.Cartesian3.UNIT_X, Math.PI);
-          }
+        Cesium.Matrix3.setColumn(mat3, 0, right, mat3);
+        Cesium.Matrix3.setColumn(mat3, 1, newUp, mat3);
+        Cesium.Matrix3.setColumn(mat3, 2, dir, mat3);
 
-          return Cesium.Quaternion.IDENTITY;
-        }
-        Cesium.Cartesian3.normalize(axis, axis);
-        const angle = Cesium.Cartesian3.angleBetween(defaultDirection, toCenter);
-
-        // 4. 生成四元数
-        return Cesium.Quaternion.fromAxisAngle(axis, angle);
+        return Cesium.Quaternion.fromRotationMatrix(mat3);
       }, false),
       show: true,
     });
@@ -162,19 +157,6 @@ const CesiumContext: FC<PropsWithChildren> = ({ children }) => {
         setCurrentSatelliteEntity(undefined);
       }
     });
-    // handler.setInputAction(function (click: { position: any }) {
-    //   var pick = viewer.scene.pick(click.position);
-
-    //   if (pick && pick.id) {
-    //     const entity = pick.id as Entity;
-
-    //     //点击的是卫星
-    //     if (entity.name?.startsWith("Satellite")) {
-    //     } else if (entity.name) {
-    //     }
-    //     console.log(entity, "1111111111");
-    //   }
-    // }, ScreenSpaceEventType.LEFT_CLICK);
 
     return () => {
       viewer.destroy();

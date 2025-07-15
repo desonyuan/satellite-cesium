@@ -23,46 +23,54 @@ double meanToTrueAnomaly(double M, double e) {
 }
 
 // 将轨道六要素转换为状态矢量（位置 + 速度，单位：km 和 km/s）
+// 主函数：直接由真近点角计算 r/v
 std::array<double, 6> orbitalElementsToRV(const OrbitalElements& elem) {
-    double a = elem.a, e = elem.e;
+    // 1. 提取轨道参数并转弧度
+    double a = elem.a;
+    double e = elem.e;
     double i = elem.i * DEG2RAD;
     double Omega = elem.Omega * DEG2RAD;
     double omega = elem.omega * DEG2RAD;
-    double M0 = elem.M0 * DEG2RAD;
+    double nu = elem.nu * DEG2RAD;
 
-    double nu = meanToTrueAnomaly(M0, e);
-    double p = a * (1 - e * e);
-    double r = p / (1 + e * std::cos(nu));
+    // 2. 轨道几何参数
+    double p = a * (1 - e * e); // 半通径
+    double r = p / (1 + e * std::cos(nu)); // 当前轨道半径
 
-    // 在轨道平面坐标系下的坐标和速度
+    // 3. PQW 坐标系下的位置和速度
     double x_p = r * std::cos(nu);
     double y_p = r * std::sin(nu);
     double vx_p = -std::sqrt(mu / p) * std::sin(nu);
-    double vy_p = std::sqrt(mu / p) * (e + std::cos(nu));
+    double vy_p =  std::sqrt(mu / p) * (e + std::cos(nu));
+    double z_p = 0.0, vz_p = 0.0;
 
-    // 旋转矩阵（三次绕 z-x-z）
+    // 4. 构造 PQW → ECI 旋转矩阵
     double cosO = std::cos(Omega), sinO = std::sin(Omega);
     double cosi = std::cos(i), sini = std::sin(i);
     double cosw = std::cos(omega), sinw = std::sin(omega);
 
-    double R11 = cosO * cosw - sinO * sinw * cosi;
-    double R12 = -cosO * sinw - sinO * cosw * cosi;
-    double R21 = sinO * cosw + cosO * sinw * cosi;
-    double R22 = -sinO * sinw + cosO * cosw * cosi;
-    double R31 = sinw * sini;
-    double R32 = cosw * sini;
+    double R[3][3];
+    R[0][0] = cosO * cosw - sinO * sinw * cosi;
+    R[0][1] = -cosO * sinw - sinO * cosw * cosi;
+    R[0][2] = sinO * sini;
+    R[1][0] = sinO * cosw + cosO * sinw * cosi;
+    R[1][1] = -sinO * sinw + cosO * cosw * cosi;
+    R[1][2] = -cosO * sini;
+    R[2][0] = sinw * sini;
+    R[2][1] = cosw * sini;
+    R[2][2] = cosi;
 
+    // 5. 应用旋转矩阵得到 ECI 坐标系下的 r 和 v
     std::array<double, 6> rv;
-    rv[0] = R11 * x_p + R12 * y_p;
-    rv[1] = R21 * x_p + R22 * y_p;
-    rv[2] = R31 * x_p + R32 * y_p;
-    rv[3] = R11 * vx_p + R12 * vy_p;
-    rv[4] = R21 * vx_p + R22 * vy_p;
-    rv[5] = R31 * vx_p + R32 * vy_p;
+    rv[0] = R[0][0] * x_p + R[0][1] * y_p + R[0][2] * z_p;
+    rv[1] = R[1][0] * x_p + R[1][1] * y_p + R[1][2] * z_p;
+    rv[2] = R[2][0] * x_p + R[2][1] * y_p + R[2][2] * z_p;
+    rv[3] = R[0][0] * vx_p + R[0][1] * vy_p + R[0][2] * vz_p;
+    rv[4] = R[1][0] * vx_p + R[1][1] * vy_p + R[1][2] * vz_p;
+    rv[5] = R[2][0] * vx_p + R[2][1] * vy_p + R[2][2] * vz_p;
 
-    return rv;
+    return rv; // 单位：位置 [km]，速度 [km/s]
 }
-
 // ==================== 星座生成主函数 ====================
 
 std::vector<OrbitalElements> generateWalkerConstellation(const OrbitalElements& seed, int T, int S, int F) {
@@ -70,7 +78,7 @@ std::vector<OrbitalElements> generateWalkerConstellation(const OrbitalElements& 
     for (int t = 0; t < T; ++t) {
         double RAAN = std::fmod(seed.Omega + t * 360.0 / T, 360.0);
         for (int s = 0; s < S; ++s) {
-            double M = std::fmod(seed.M0 + (360.0 / S) * s + (360.0 / (T * S)) * F * t, 360.0);
+            double M = std::fmod(seed.nu + (360.0 / S) * s + (360.0 / (T * S)) * F * t, 360.0);
             satellites.push_back({seed.a, seed.e, seed.i, RAAN, seed.omega, M});
         }
     }

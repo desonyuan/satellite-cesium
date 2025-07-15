@@ -61,10 +61,10 @@ def plot_errors(position_errors, velocity_errors, time_interval):
 
 # 主程序
 if __name__ == "__main__":
-    # file_path1 = 'SatelliteStates_J2000_test.txt'
-    # file_path2 = 'J2000_7day_gt.txt'
-    file_path1 = "D:\\HPOP_code\\HPOP_RK4\\beidou_output\\Satellite_1_fixed.txt"
-    file_path2 = "C:\\Users\\Thinkpad\\Desktop\\Satellite1_fixed_rv_9.txt"
+    file_path1 = 'SatelliteStates_J2000.txt'
+    file_path2 = 'J2000_7day_gt.txt'
+    # file_path1 = "D:\\HPOP_code\\HPOP_RK4\\beidou_output\\Satellite_1_fixed.txt"
+    # file_path2 = "C:\\Users\\Thinkpad\\Desktop\\Satellite1_fixed_rv_9.txt"
     time_interval = 0.5
 
     position_errors, velocity_errors = read_and_process(file_path1, file_path2)
