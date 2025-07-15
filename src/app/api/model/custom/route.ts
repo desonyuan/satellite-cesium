@@ -15,6 +15,9 @@ export const POST = async (request: NextRequest) => {
   if (json.type === "Walker") {
     params.unshift("scene_edit");
   }
+
+  console.log(params, "1111111111");
+
   await new Promise((resolve, reject) => {
     execFile(HPOPEXEC_PATH, params, (e: any, stdout: any) => {
       if (e) {
