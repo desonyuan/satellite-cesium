@@ -4,7 +4,6 @@ import { ModalBody, ModalFooter, ModalHeader } from "@heroui/modal";
 import { DatePicker } from "@heroui/react";
 import { useRequest, useSetState } from "ahooks";
 import { FC, PropsWithChildren, useMemo } from "react";
-import { now, getLocalTimeZone } from "@internationalized/date";
 import { ZonedDateTime } from "@heroui/system/dist/types";
 
 interface Options {
@@ -202,7 +201,7 @@ const CustomForce: FC<PropsWithChildren<IProps>> = ({ onClose, loadCustomSatelli
                         key={item.key}
                         hideTimeZone
                         showMonthAndYearPickers
-                        defaultValue={now(getLocalTimeZone())}
+                        // defaultValue={now(getLocalTimeZone())}
                         granularity="second"
                         label="Event Date"
                         variant="bordered"

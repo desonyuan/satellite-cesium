@@ -8,10 +8,15 @@ import { GenCzmlHandler } from "@/utils/genCzml";
 
 export const POST = async (request: NextRequest) => {
   const json = await request.json();
-  const params = json.params as string[];
+  const args = json.params as string[];
 
+  const params = [json.type, ...args];
+
+  if (json.type === "Walker") {
+    params.unshift("scene_edit");
+  }
   await new Promise((resolve, reject) => {
-    execFile(HPOPEXEC_PATH, [json.type, ...params], (e: any, stdout: any) => {
+    execFile(HPOPEXEC_PATH, params, (e: any, stdout: any) => {
       if (e) {
         reject(e);
       } else {
